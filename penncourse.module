@@ -1,0 +1,814 @@
+<?php
+// $Id: penncourse.module,v 1.1 2011/05/23 19:57:47 rickward Exp $
+
+/**
+* Display help and module information
+* @param section which section of the site we're displaying help
+* @return help text for section
+*/
+function penncourse_help($section='') {
+  $output = '';
+
+  switch ($section) {
+    case "admin/help#penncourse":
+      $output = '<p>'.  t("Displays course information from the Penn Data Warehouse. Requires separate configuration of data synchronization tasks."). '</p>';
+      break;
+  }
+
+  return $output;
+} // function onthisdate_help
+
+function penncourse_views_api() {
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'penncourse'),
+  );
+}
+
+function penncourse_init() {
+  ini_set('display_errors',1);
+  error_reporting(E_ALL);
+} // function penncourse_init()
+
+/**
+* Valid permissions for this module
+* @return array An array of valid permissions for the onthisdate module
+*/
+function penncourse_perm() {
+  return array('access penncourse content','admin penncourse');
+} // function penncourse_perm()
+
+/**
+ * Implementation of hook_menu()
+ */
+function penncourse_menu() {
+  global $user;
+  $base_path = (base_path() == '/') ? '' : base_path().'/';
+  $items['admin/settings/penncourse'] = array(
+    'title' => 'PennCourse',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('penncourse_admin_settings'),
+    'access arguments' => array('admin penncourse'),
+    'description' => 'Change settings for the Penncourse module.',
+    'file' => 'penncourse.admin.inc',
+  );
+  $items['pc/term/%'] = array(
+    'title' => 'Courses',
+    'page callback' => 'penncourse_course_list_term',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('access penncourse content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'penncourse.pages.inc',
+  );
+  $items['pc/load/%'] = array(
+    'title' => 'Loading Courses',
+    'page callback' => 'penncourse_load_year',
+    'page arguments' => array(2),
+    'access callback' => 'user_access',
+    'access arguments' => array('admin penncourse'),
+    'type' => MENU_CALLBACK,
+    'file' => 'penncourse.pages.inc',
+  );
+  $items['pc/term/%/subject/%'] = array(
+    'title' => 'Courses',
+    'page callback' => 'penncourse_course_list_term',
+    'page arguments' => array(2,4),
+    'access callback' => 'user_access',
+    'access arguments' => array('access penncourse content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'penncourse.pages.inc',
+  );
+  $items['pc/course/%/%'] = array(
+    'title' => 'Course Details',
+    'page callback' => 'penncourse_course_detail',
+    'page arguments' => array(2,3),
+    'access callback' => 'user_access',
+    'access arguments' => array('access penncourse content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'penncourse.pages.inc',
+  );
+  return $items;
+} // function penncourse_menu()
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function penncourse_form_alter(&$form, $form_state, $form_id) {
+} // function penncourse_form_alter()
+
+/**
+ * Implementation of hook_cron
+ */
+function penncourse_cron() {
+  $subject_array = explode(' ',trim(variable_get('penncourse_subject_areas', '')));
+  
+  // process each subject area as set on the penncourse system settings form
+  foreach ($subject_array as $subject) {
+    penncourse_process_subj_area($subject);
+  }
+  penncourse_cleanup();
+}
+
+/*
+ * UTILITY FUNCTIONS
+ */
+
+/**
+ * penncourse_load_course_node($course_id)
+ * 
+ * load course node for a course id and term
+ * returns node object
+ */
+function penncourse_load_course_node($course_id, $term) {
+  $course_table = array();
+  $course_field = array();
+  $db_info = content_database_info(content_fields('field_pc_course_id','pc_course'));
+  $course_table['course_id'] = $db_info['table'];
+  $course_field['course_id'] = $db_info['columns']['value']['column'];
+  $db_info = content_database_info(content_fields('field_pc_term','pc_course'));
+  $course_table['term'] = $db_info['table'];
+  $course_field['term'] = $db_info['columns']['value']['column'];
+  $sql = sprintf("SELECT DISTINCT c.nid AS course_nid " .
+    "FROM %s c JOIN %s t ON (c.nid = t.nid AND c.vid = t.vid) " .
+    "JOIN node n ON (n.nid = t.nid AND n.vid = t.vid AND n.type = 'pc_course') " .
+    "WHERE c.%s = '%s' AND  t.%s = '%s'",
+    $course_table['course_id'],
+    $course_table['term'],
+    $course_field['course_id'],
+    $course_id,
+    $course_field['term'],
+    $term);
+
+  // echo 'course lookup sql: '.$sql.chr(10).chr(13);
+
+  $result = db_query($sql);
+  
+  $course_nid = db_result($result);
+  
+  $course_node = node_load($course_nid);
+  
+  if ($course_nid) {
+    return $course_node;
+  } else {
+    // echo 'Course not found: '.$course_id.' - '.$term.chr(10).chr(13);
+    return null;
+  }
+  
+} // function penncourse_load_course_node($subj_code)
+
+/**
+ * function penncourse_update_section_node()
+ * 
+ * update the given pc_section node with the submitted data
+ */
+function penncourse_update_section_node ($nid, 
+                               $subj_area, 
+                               $course_nid, 
+                               $course_id, 
+                               $course_no, 
+                               $course_title, 
+                               $course_instructors, 
+                               $section_id, 
+                               $section_no, 
+                               $term, 
+                               $term_session, 
+                               $course_meeting, 
+                               $xlists,
+                               $activity,
+                               $syllabus_url,
+                               $status) {
+  module_load_include('inc', 'node', 'node.pages');
+
+  $node = node_load($nid);
+
+  $form_state = array();
+
+  // You'll recognize this as the structure of
+  // form_values you'll see in a submit or validate
+  // handler. You're basically building it manually,
+  // rather than using $_POST from a user.
+  $form_state['values']['field_pc_subj_area'][0]['value'] = $subj_area;
+  $form_state['values']['field_pc_course']['nid']['nid'] = $course_nid;
+  $form_state['values']['field_pc_course_id'][0]['value'] = $course_id;
+  $form_state['values']['field_pc_course_no'][0]['value'] = $course_no;
+  $form_state['values']['title'] = $subj_area.$course_no.' - '.$course_title;
+  $form_state['values']['field_pc_descr'][0]['value'] = $node->field_pc_descr[0]['value'];
+  $form_state['values']['field_pc_instructors'][0]['value'] = penncourse_transform_instructors($course_instructors);
+  $form_state['values']['field_pc_section_id'][0]['value'] = $section_id;
+  $form_state['values']['field_pc_section_no'][0]['value'] = $section_no;
+  $form_state['values']['field_pc_term'][0]['value'] = $term;
+  if ($status == 'X') {
+    $form_state['values']['field_pc_meeting'][0]['value'] = 'CANCELED';
+  } else {
+    $form_state['values']['field_pc_meeting'][0]['value'] = penncourse_transform_meetings($course_meeting);
+  }
+  $form_state['values']['field_pc_location'][0]['value'] = penncourse_transform_location($course_meeting);
+  $form_state['values']['field_pc_xlist'][0]['value'] = $xlists;
+  $form_state['values']['field_pc_activity'][0]['value'] = $activity;
+  $form_state['values']['field_pc_syllabus_url'][0]['url'] = $syllabus_url;
+  $form_state['values']['field_pc_status'][0]['value'] = $status;
+  $form_state['values']['status'] = 1;
+  
+  $form_state['values']['op'] = t('Save'); // required value
+  
+  // execute update of node
+  drupal_execute('pc_section_node_form', $form_state, (object)$node);
+  
+  // echo print_r($form_state).chr(10).chr(13);
+  // echo 'updating section nid '.$nid.': '.$section_id.chr(10).chr(13);
+}
+
+/**
+ * function penncourse_update_section_node()
+ * 
+ * update the given pc_section node with the submitted data
+ */
+function penncourse_new_section_node ($subj_area, 
+                     $course_nid, 
+                     $course_id, 
+                     $course_no, 
+                     $course_title, 
+                     $course_instructors, 
+                     $section_id, 
+                     $section_no, 
+                     $term, 
+                     $term_session, 
+                     $course_meeting, 
+                     $xlists,
+                     $activity,
+                     $syllabus_url,
+                     $status) {
+                       
+  // create node of type section
+  $node = array('type' => 'pc_section');
+
+  $values = array();
+
+  // You'll recognize this as the structure of
+  // form_values you'll see in a submit or validate
+  // handler. You're basically building it manually,
+  // rather than using $_POST from a user.
+  $form_state['values']['field_pc_subj_area'][0]['value'] = $subj_area;
+  $form_state['values']['field_pc_course']['nid']['nid'] = $course_nid;
+  $form_state['values']['field_pc_course_id'][0]['value'] = $course_id;
+  $form_state['values']['field_pc_course_no'][0]['value'] = $course_no;
+  $form_state['values']['title'] = $subj_area.$course_no.' - '.$course_title;
+  $form_state['values']['field_pc_instructors'][0]['value'] = penncourse_transform_instructors($course_instructors);
+  $form_state['values']['field_pc_section_id'][0]['value'] = $section_id;
+  $form_state['values']['field_pc_section_no'][0]['value'] = $section_no;
+  $form_state['values']['field_pc_term'][0]['value'] = $term;
+  if ($status == 'X') {
+    $form_state['values']['field_pc_meeting'][0]['value'] = 'CANCELED';
+  } else {
+    $form_state['values']['field_pc_meeting'][0]['value'] = penncourse_transform_meetings($course_meeting);
+  }
+  $form_state['values']['field_pc_location'][0]['value'] = penncourse_transform_location($course_meeting);
+  $form_state['values']['field_pc_xlist'][0]['value'] = $xlists;
+  $form_state['values']['field_pc_activity'][0]['value'] = $activity;
+  $form_state['values']['field_pc_syllabus_url'][0]['url'] = $syllabus_url;
+  $form_state['values']['field_pc_status'][0]['value'] = $status;
+  $form_state['values']['status'] = 1;
+  
+  $form_state['values']['op'] = t('Save'); // required value
+  
+  // execute update of node
+  drupal_execute('pc_section_node_form', $form_state, (object)$node);
+  
+  // echo print_r($form_state).chr(10).chr(13);
+  // echo 'new section node '.$section_id.chr(10).chr(13);
+}
+
+/**
+ * function penncourse_update_course_node()
+ * 
+ * update the given pc_course node with the submitted data
+ */
+function penncourse_update_course_node ($nid, 
+                               $subj_area, 
+                               $course_id, 
+                               $course_title, 
+                               $course_desc,
+                               $term,
+                               $term_session,
+                               $status) {
+  module_load_include('inc', 'node', 'node.pages');
+
+  $node = node_load($nid);
+
+  $form_state = array();
+
+  // build out node values
+  $form_state['values']['title'] = $course_id.' - '.$course_title;
+  $form_state['values']['field_pc_subj_area'][0]['value'] = $subj_area;
+  $form_state['values']['field_pc_course_id'][0]['value'] = $course_id;
+  $form_state['values']['field_pc_course_title'][0]['value'] = $course_title;
+  $form_state['values']['field_pc_descr'][0]['value'] = penncourse_transform_description($course_desc);
+  $form_state['values']['field_pc_term'][0]['value'] = $term;
+  $form_state['values']['field_pc_term_session'][0]['value'] = $term_session;
+  $form_state['values']['field_pc_status'][0]['value'] = $status;
+  
+  $form_state['values']['op'] = t('Save'); // required value
+  
+  // execute update of node
+  drupal_execute('pc_course_node_form', $form_state, (object)$node);
+  
+  // echo print_r($form_state).chr(10).chr(13);
+  // echo 'updating course nid '.$nid.': '.$course_id.chr(10).chr(13);
+}
+
+/**
+ * function penncourse_new_course_node()
+ * 
+ * create a new cm_course node from the submitted data
+ */
+function penncourse_new_course_node ($subj_area, 
+                               $course_id, 
+                               $course_title, 
+                               $course_desc,
+                               $term,
+                               $term_session,
+                               $status) {
+  module_load_include('inc', 'node', 'node.pages');
+  
+  // create node of type course
+  $node = array('type' => 'pc_course');
+
+  $form_state = array();
+
+  // build out node values
+  $form_state['values']['title'] = $course_id.' - '.$course_title;
+  $form_state['values']['field_pc_subj_area'][0]['value'] = $subj_area;
+  $form_state['values']['field_pc_course_id'][0]['value'] = $course_id;
+  $form_state['values']['field_pc_course_title'][0]['value'] = $course_title;
+  $form_state['values']['field_pc_descr'][0]['value'] = penncourse_transform_description($course_desc);
+  $form_state['values']['field_pc_term'][0]['value'] = $term;
+  $form_state['values']['field_pc_term_session'][0]['value'] = $term_session;
+  $form_state['values']['field_pc_status'][0]['value'] = $status;
+  
+  $form_state['values']['op'] = t('Save'); // required value
+
+  // execute creation of node
+  drupal_execute('pc_course_node_form', $form_state, (object)$node);
+
+  // echo print_r($form_state).chr(10).chr(13);
+  // echo 'new course node: '.$course_id.chr(10).chr(13);
+  // echo 'Course NID IN FUNCTION'.$form_state['nid'].chr(10).chr(13);  
+
+  return $form_state['nid'];
+} // function penncourse_new_course_node()
+
+
+/**
+ * function penncourse_transform_instructors
+ * input xml string
+ * output xhtml formatted text
+ */
+function penncourse_transform_instructors ($xmlstring) {
+  $xhtml = '';
+  $xml = new SimpleXMLElement($xmlstring);
+  foreach ($xml->xpath("/instructors[instructor]") as $instructors) {
+    // $xhtml .= '<ul class="penncourse-course-instructors">';
+    foreach ($instructors->instructor as $instructor) {
+      if ($instructor->lastname) {
+        $xhtml .= '<span class="penncourse-course-instructor" id="'.$instructor->pennkey.'">'.$instructor->lastname.', '.$instructor->firstname.'</span><br />';
+      }
+    }
+    // $xhtml .= '</ul>';
+  }
+  
+  // echo $xhtml.chr(10).chr(13);
+  return $xhtml;
+} // function penncourse_transform_instructors()
+
+/**
+ * function penncourse_transform_meetings
+ * input xml string
+ * output xhtml formatted text
+ */
+function penncourse_transform_meetings ($xmlstring) {
+  $xhtml = '';
+  $xml = new SimpleXMLElement($xmlstring);
+  foreach ($xml->xpath('/meetings[meeting]') as $meetings) {
+    // $xhtml .= '<ul class="penncourse-course-meeting">';
+    foreach ($meetings->meeting as $meeting) {
+      // $xhtml .= '<li><span style="font-weight:bold">Days: </span>'.$meeting->days.' &nbsp; <span style="font-weight:bold">Time: </span>'.$meeting->time.'</li>';
+      if ($meeting->days && $meeting->time) {
+        $xhtml .= '<span class="penncourse-course-meeting">'.$meeting->days.' '.$meeting->time.'</span><br />';      
+      }
+    }
+    // $xhtml .= '</ul>';
+  }
+  
+  // echo $xhtml.chr(10).chr(13);
+  return $xhtml;
+} // function penncourse_transform_meetings
+
+/**
+ * function penncourse_transform_location
+ * input xml string
+ * output xhtml formatted text
+ */
+function penncourse_transform_location ($xmlstring) {
+  $xhtml = '';
+  $xml = new SimpleXMLElement($xmlstring);
+  foreach ($xml->xpath('/meetings[meeting]') as $meetings) {
+    // $xhtml .= '<ul class="penncourse-course-location">';
+    foreach ($meetings->meeting as $meeting) {
+      // $xhtml .= '<li><span style="font-weight:bold">Room: </span>'.$meeting->room.' &nbsp; '.$meeting->building.'</li>';
+      if ($meeting->building && $meeting->room) {
+        $xhtml .= '<span class="penncourse-course-location">'.$meeting->building.' '.$meeting->room.'</span><br />';      
+      }
+    }
+    // $xhtml .= '</ul>';
+  }
+  
+  // echo $xhtml.chr(10).chr(13);
+  return $xhtml;
+} // function penncourse_transform_location
+
+/**
+ * function penncourse_transform_description
+ * input xml string
+ * output text
+ */
+function penncourse_transform_description ($xmlstring) {
+  $output = '';
+  $xml = new SimpleXMLElement($xmlstring);
+  foreach ($xml->xpath('/div[p]') as $description) {
+    // $output .= '<ul class="penncourse-course-location">';
+    foreach ($description->p as $para) {
+      $output .= $para;
+      $output .= chr(10).chr(13).chr(10).chr(13);
+    }
+  }
+  
+  // echo $output.chr(10).chr(13);
+  return $output;
+} // function penncourse_transform_description
+
+/**
+ * function penncourse_load_final_term()
+ * returns the term code for the most currently published course roster
+ * 
+ * course rosters for the summer and fall are finalized on 2/19
+ * rosters for the spring are finalized on 10/1
+ * 
+ */
+function penncourse_load_final_term() {
+  if ((date('n',time()) >= 10) && (date('j',time()) >= 1)) {
+    // date is after 10/1 - final term is next spring term
+    $term = date('Y',time()) + 1;
+    $term .= 'A';
+  } elseif ((date('n',time()) >= 2) && ((date('j',time()) >= 19) || (date('n',time()) >= 3))) {
+    // date is after 2/19 - final term is next (or current) fall term
+    $term = date('Y',time());
+    $term .= 'C';
+  } else {
+    // date is before 2/19 - final term is current spring term
+    $term = date('Y',time());
+    $term .= 'A';
+  }
+  return $term;
+} // function penncourse_load_final_term()
+ 
+/** 
+ * function penncourse_translate_term($term_code)
+ * returns a formatted string of the term name for a given $term_code
+ * ('2008C' returns 'Fall 2008')
+ */
+function penncourse_translate_term($term_code) {
+  $term_name = array('A' => 'Spring', 'B' => 'Summer', 'C' => 'Fall');
+  if (is_numeric(substr($term_code,0,4)) && ((strtoupper(substr($term_code,4,1)) == 'A') || (strtoupper(substr($term_code,4,1)) == 'B') || (strtoupper(substr($term_code,4,1)) == 'C'))) {
+    return $term_name[strtoupper(substr($term_code,4,1))].' '.substr($term_code,0,4);
+  } else {
+    // invalid code
+    return 'Invalid term code';
+  }
+} // function penncourse_translate_term()
+
+/** 
+ * function penncourse_translate_subject($subj_code)
+ * 
+ * returns a formatted string of Subject Area name
+ * ('ANTH' returns 'Anthropology')
+ */
+function penncourse_translate_subject($subj_code) {
+  $subj_descr = '';
+  if (preg_match('/[A-Za-z][A-Za-z][A-Za-z][A-Za-z]?/',$subj_code,$matches)) {
+    $subj_code = strtoupper($matches[0]);
+    $sql = sprintf("SELECT DISTINCT subject_area_desc " .
+      "FROM warehousesync.pc_subj_area_temp " .
+      "WHERE subject_area = '%s'",
+      $subj_code);
+
+    $result = db_query($sql);
+    $subj_descr = db_result($result);
+  }
+  return $subj_descr;
+} // function penncourse_translate_subject()
+
+/**
+ * function penncourse_current_term()
+ * returns the current term
+ * A = January 1 through May 20
+ * B = May 21 through August 15
+ * C = August 16 through December 31
+ */
+function penncourse_current_term() {
+  // get database information about course_course_id field
+  $term = date('Y',time());
+  if ((date('n',time()) <= 5) && ((date('j',time()) <= 20) || (date('n',time()) <= 4))) {
+    $term .= 'A';
+  } elseif ((date('n',time()) <= 8) && ((date('j',time()) <= 15) || (date('n',time()) <= 7))) {
+    $term .= 'B';
+  } else {
+    $term .= 'C';
+  }
+  return $term;
+} // function penncourse_current_term()
+
+/**
+ * function penncourse_process_subj_area($subj_area,$year)
+ * processes the course and section entries for a single subject area
+ */
+function penncourse_process_subj_area($subj_area,$year = NULL) {
+  if (!$year || ($year == date('Y',time()))) {
+    $start_term = penncourse_start_term();
+    $end_term = penncourse_load_final_term();
+  } else {
+    $start_term = $year.'A';
+    $end_term = $year.'C';
+  }
+  $prev_course_term = '';
+  $course_nid = null;
+  
+  watchdog('penncourse cron', 'end term: '.$end_term, array(), WATCHDOG_NOTICE);
+
+  // get info about course and section tables and fields
+  $course_table = array();
+  $course_field = array();
+  $db_info = content_database_info(content_fields('field_pc_course_id','pc_course'));
+  $course_table['course_id'] = $db_info['table'];
+  $course_field['course_id'] = $db_info['columns']['value']['column'];
+  $db_info = content_database_info(content_fields('field_pc_term','pc_course'));
+  $course_table['term'] = $db_info['table'];
+  $course_field['term'] = $db_info['columns']['value']['column'];
+  $section_table = array();
+  $section_field = array();
+  $db_info = content_database_info(content_fields('field_pc_section_id','pc_section'));
+  $section_table['section_id'] = $db_info['table'];
+  $section_field['section_id'] = $db_info['columns']['value']['column'];
+  $db_info = content_database_info(content_fields('field_pc_term','pc_section'));
+  $section_table['term'] = $db_info['table'];
+  $section_field['term'] = $db_info['columns']['value']['column'];
+  $sql = sprintf("SELECT DISTINCT p.subject_area, " .
+    "p.course_id, " .
+    "p.course_no, " .
+    "p.course_title, " .
+    "p.course_instructors, " .
+    "p.section_id, " .
+    "p.section_no, " .
+    "p.course_desc, " .
+    "p.term, " .
+    "p.term_session, " .
+    "p.course_meeting, " .
+    "p.xlists, " .
+    "p.activity, " .
+    "p.syllabus_url, " .
+    "p.status, " .
+    "ci.nid AS course_nid, " .
+    "si.nid AS section_nid " .
+    "FROM warehousesync.pc_courses_temp p LEFT JOIN (%s ci JOIN %s ct ON (ci.nid = ct.nid AND ci.vid = ct.vid) JOIN node cn ON (cn.nid = ct.nid AND cn.vid = ct.vid AND cn.type = 'pc_course')) ON (p.course_id = ci.%s AND p.term = ct.%s) " .
+    "LEFT JOIN (%s si JOIN %s st ON (si.nid = st.nid AND si.vid = st.vid) JOIN node sn ON (sn.nid = st.nid AND sn.vid = st.vid AND sn.type = 'pc_section')) ON (p.section_id = si.%s AND p.term = st.%s) " .
+    "WHERE subject_area = '%s' AND p.term >= '%s' AND p.term <= '%s' ORDER BY course_id, term, section_id",
+    $course_table['course_id'],
+    $course_table['term'],
+    $course_field['course_id'],
+    $course_field['term'],
+    $section_table['section_id'],
+    $section_table['term'],
+    $section_field['section_id'],
+    $section_field['term'],
+    $subj_area,
+    $start_term,
+    $end_term);
+  /* $sql = sprintf("SELECT DISTINCT p.subject_area, " .
+    "p.course_id, " .
+    "p.course_no, " .
+    "p.course_title, " .
+    "p.course_instructors, " .
+    "p.section_id, " .
+    "p.section_no, " .
+    "p.course_desc, " .
+    "p.term, " .
+    "p.term_session, " .
+    "p.course_meeting, " .
+    "p.xlists, " .
+    "p.activity, " .
+    "p.syllabus_url, " .
+    "p.status, " .
+    "ci.nid AS course_nid, " .
+    "si.nid AS section_nid " .
+    "FROM warehousesync.pc_courses_temp p LEFT JOIN (%s ci JOIN %s ct ON (ci.nid = ct.nid AND ci.vid = ct.vid) JOIN node cn ON (cn.nid = ct.nid AND cn.vid = ct.vid AND cn.type = 'pc_course')) ON (p.course_id = ci.%s AND p.term = ct.%s) " .
+    "LEFT JOIN (%s si JOIN %s st ON (si.nid = st.nid AND si.vid = st.vid) JOIN node sn ON (sn.nid = st.nid AND sn.vid = st.vid AND sn.type = 'pc_section')) ON (p.section_id = si.%s AND p.term = st.%s) " .
+    "WHERE subject_area = '%s' AND p.term >= '%s' AND p.term <= '%s' AND p.status <> 'X' ORDER BY course_id, term, section_id",
+    $course_table['course_id'],
+    $course_table['term'],
+    $course_field['course_id'],
+    $course_field['term'],
+    $section_table['section_id'],
+    $section_table['term'],
+    $section_field['section_id'],
+    $section_field['term'],
+    $subj_area,
+    $start_term,
+    penncourse_load_final_term()); */
+
+  $results = db_query($sql);
+  // echo print_r($results).chr(10).chr(13);
+  
+  // echo $sql.chr(10).chr(13);
+  while ($section = db_fetch_object($results)) {
+    
+    // echo print_r($section).chr(10).chr(13);
+  
+    // handle course node
+    if ($section->course_id.$section->term != $prev_course_term) {
+      // reset course_nid
+      $course_nid = null;
+      if ($section->course_nid) {
+        $course_nid = $section->course_nid;
+        
+        // node found, try to update node
+        penncourse_update_course_node($section->course_nid,
+                     $section->subject_area, 
+                     $section->course_id, 
+                     $section->course_title, 
+                     $section->course_desc, 
+                     $section->term, 
+                     $section->term_session, 
+                     $section->status);
+      } else {
+        // no node found, create a new node
+        $course_nid = penncourse_new_course_node($section->subject_area, 
+                     $section->course_id, 
+                     $section->course_title, 
+                     $section->course_desc, 
+                     $section->term, 
+                     $section->term_session, 
+                     $section->status);
+        // echo 'Course NID: '.$course_nid.chr(10).chr(13);
+      }
+      // update $prev_course_term
+      $prev_course_term = $section->course_id.$section->term;
+    }
+    // check for pre-existing section node with matching section_id and term
+    // $check = check_for_section_node($section->section_id,$section->term);
+  
+    if ($course_nid) {
+      if ($section->section_nid) {
+        // node found, try to update node
+        penncourse_update_section_node($section->section_nid,
+                       $section->subject_area, 
+                       $course_nid, 
+                       $section->course_id, 
+                       $section->course_no, 
+                       $section->course_title, 
+                       $section->course_instructors, 
+                       $section->section_id, 
+                       $section->section_no, 
+                       $section->term, 
+                       $section->term_session, 
+                       $section->course_meeting, 
+                       $section->xlists, 
+                       $section->activity, 
+                       $section->syllabus_url, 
+                       $section->status);
+                       
+      } else {
+        // no node found, create a new node
+        penncourse_new_section_node($section->subject_area, 
+                       $course_nid, 
+                       $section->course_id, 
+                       $section->course_no, 
+                       $section->course_title, 
+                       $section->course_instructors, 
+                       $section->section_id, 
+                       $section->section_no, 
+                       $section->term, 
+                       $section->term_session, 
+                       $section->course_meeting, 
+                       $section->xlists, 
+                       $section->activity, 
+                       $section->syllabus_url, 
+                       $section->status);
+                       
+      }
+      // $course_nid = null;
+    } else {
+      echo 'No course node found or created. No section node created: '.$section->section_id.chr(10).chr(13);
+    }
+  }
+} // function penncourse_process_subj_area()
+
+/**
+ * function penncourse_start_term()
+ * 
+ * returns the term code for the first semester of the current year
+ * this helps penncourse_cleanup() to only process current records 
+ * (ie, we don't want to waste time cleaning up old data that is not of current use)
+ */
+function penncourse_start_term() {
+  $term = date('Y',time());
+  $term .= 'A';
+  return $term;
+} // function penncourse_start_term()
+ 
+/**
+ * function penncourse_cleanup()
+ * delete nodes for canceled courses and sections
+ */
+function penncourse_cleanup() {
+  // get info about course and section tables and fields
+  $course_table = array();
+  $course_field = array();
+  $db_info = content_database_info(content_fields('field_pc_course_id','pc_course'));
+  $course_table['course_id'] = $db_info['table'];
+  $course_field['course_id'] = $db_info['columns']['value']['column'];
+  $db_info = content_database_info(content_fields('field_pc_term','pc_course'));
+  $course_table['term'] = $db_info['table'];
+  $course_field['term'] = $db_info['columns']['value']['column'];
+  $section_table = array();
+  $section_field = array();
+  $db_info = content_database_info(content_fields('field_pc_status','pc_course'));
+  $course_table['status'] = $db_info['table'];
+  $course_field['status'] = $db_info['columns']['value']['column'];
+  $section_table = array();
+  $section_field = array();
+  $db_info = content_database_info(content_fields('field_pc_section_id','pc_section'));
+  $section_table['section_id'] = $db_info['table'];
+  $section_field['section_id'] = $db_info['columns']['value']['column'];
+  $db_info = content_database_info(content_fields('field_pc_term','pc_section'));
+  $section_table['term'] = $db_info['table'];
+  $section_field['term'] = $db_info['columns']['value']['column'];
+  $db_info = content_database_info(content_fields('field_pc_status','pc_section'));
+  $section_table['status'] = $db_info['table'];
+  $section_field['status'] = $db_info['columns']['value']['column'];
+  
+  // get nid's for course nodes to be deleted
+  $sql = sprintf("SELECT ci.nid FROM " .
+      "(%s ci JOIN %s ct ON (ci.nid = ct.nid AND ci.vid = ct.vid) JOIN %s cs ON (cs.nid = ct.nid AND cs.vid = ct.vid) JOIN node cn ON (cn.nid = ct.nid AND cn.vid = ct.vid AND cn.type = 'pc_course')) " .
+      "LEFT JOIN warehousesync.pc_courses_temp p ON " .
+      "(ci.%s = p.course_id " .
+      "AND ct.%s = p.term) " .
+      "WHERE p.course_id IS NULL AND p.term >= '%s'",
+      $course_table['course_id'],
+      $course_table['term'],
+      $course_table['status'],
+      $course_field['course_id'],
+      $course_field['term'],
+      penncourse_start_term());
+      
+  $results = db_query($sql);
+  
+  // delete course nodes
+  while ($course = db_fetch_object($results)) {
+    // echo 'deleting course node: '.$course->nid.chr(10).chr(13);
+    node_delete($course->nid);
+  }
+  
+  // get nid's for section nodes to be deleted
+  $sql = sprintf("SELECT si.nid FROM " .
+      "(%s si JOIN %s st ON (si.nid = st.nid AND si.vid = st.vid) JOIN %s ss ON (ss.nid = st.nid AND ss.vid = st.vid) JOIN node sn ON (sn.nid = st.nid AND sn.vid = st.vid AND sn.type = 'pc_section')) " .
+      "LEFT JOIN warehousesync.pc_courses_temp p ON " .
+      "(si.%s = p.section_id " .
+      "AND st.%s = p.term) " .
+      "WHERE p.section_id IS NULL AND p.term >= '%s'",
+      $section_table['section_id'],
+      $section_table['term'],
+      $section_table['status'],
+      $section_field['section_id'],
+      $section_field['term'],
+      penncourse_start_term());
+      
+  $results = db_query($sql);
+  
+  // delete section nodes
+  while ($course = db_fetch_object($results)) {
+    // echo 'deleting section node: '.$course->nid.chr(10).chr(13);
+    node_delete($course->nid);
+  }
+}
+
+/**
+ * function pcpm
+ * 
+ * a wrapper for the devel module dpm function
+ */
+function pcpm($value) {
+  if (module_exists('devel')) {
+    dpm($value);
+  }
+}
+

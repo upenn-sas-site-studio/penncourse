@@ -1,0 +1,120 @@
+<?php
+// penncourse.install
+
+/**
+* Programmatically create CCK fields and types using the content copy module
+* @param $type string
+* content type to create, defaults to new type, if type exists, only fields will be added
+* @param $macro array
+* exported array from content types -> export. If file is not specified, macro will be used
+* @param $file string
+* path to file containing content copy exported macro data structure. no escaping needed.
+*/
+function base_create_content($type = '<create>', $macro = '', $file = '') {
+  if(!module_exists("content_copy")){
+    drupal_set_message('Programmatically creating CCK fields requires the Content Copy module. Exiting.');
+    return;
+  }
+  
+  // get macro import data, prefer file first
+  // assign $file content to $macro, if file is available
+  if($file){
+    if(file_exists($file)){
+      $macro = file_get_contents($file);
+    }else{
+      drupal_set_message('Unable to read input file for import. Exiting.');
+      return;
+    }
+  }
+
+  // build form state
+  $form_state = array(
+    'values' => array(
+      'type_name' => $type,
+      'macro' => $macro,
+    ),
+  );
+
+  //import content by executing content copy import form and passing macro
+  drupal_execute("content_copy_import_form", $form_state);
+  content_clear_type_cache();
+}
+
+
+function penncourse_install () {
+
+  // create subject area content type
+  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_subject_area_desc.cck');
+
+  // create course content type
+  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_course.cck');
+
+  // create section content type
+  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_section.cck');
+  
+  // Create the Course Theme vocabulary
+  $vocabulary = array(
+    'name' => t('Course Theme'),
+    'multiple' => 1,
+    'description' => 'Used to group courses by theme for the Penncourse module. Not used by all departments',
+    'required' => 0,
+    'hierarchy' => 1,
+    'relations' => 0,
+    'module' => 'penncourse',
+    'weight' => 0,
+    'nodes' => array('pc_course' => 1),
+  );
+  
+  taxonomy_save_vocabulary($vocabulary);
+}
+
+function penncourse_uninstall() {
+
+foreach (array('pc_section','pc_course','pc_subject_area_desc') AS $content_type) {
+    // get field information for $content_type
+    $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE type_name = '%s'",$content_type);
+    $result_set = db_query($sql);
+
+    // loop through each field for this type and remove references and tables
+    while ($result = db_fetch_object($result_set)) {
+      $db_info = content_database_info(content_fields($result->field_name,$content_type));
+      $field_table = $db_info['table'];
+      
+      // remove content_node_field_instance record
+      $sql = sprintf("DELETE FROM content_node_field_instance WHERE field_name = '%s' AND type_name = '%s'",$result->field_name,$content_type);
+      $action = db_query($sql);
+      
+      // if this is the only content type that uses this field, remove all references
+      $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE field_name = '%s'",$result->field_name);
+      $field_check = db_query($sql);
+      if (!($field_check->num_rows)) {
+        // delete content_node_field record
+        $sql = sprintf("DELETE FROM content_node_field WHERE field_name = '%s'",$result->field_name);
+        $action = db_query($sql);
+        
+        // drop field table
+        $sql = sprintf("DROP TABLE IF EXISTS %s",$field_table);
+        $action = db_query($sql);
+      }
+    }
+    
+    // delete $content_type records from node_revisions
+    $sql = sprintf("DELETE FROM node_revisions WHERE nid IN (SELECT nid FROM node WHERE type = '%s')",$content_type);
+    $result = db_query($sql);
+    
+    // delete node records for $content_type
+    $sql = sprintf("DELETE FROM node WHERE type = '%s'",$content_type);
+    $result = db_query($sql);
+    
+    // delete node_type for $content_type
+    $sql = sprintf("DELETE FROM node_type WHERE type = '%s'",$content_type);
+    $result = db_query($sql);    
+  }
+  
+  variable_del('penncourse_subject_areas');
+
+  // delete cache_content
+  // content_clear_type_cache();
+  
+  // delete Course Theme vocabulary
+}
