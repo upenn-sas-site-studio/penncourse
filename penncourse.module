@@ -1,5 +1,5 @@
 <?php
-// $Id: penncourse.module,v 1.1 2011/05/23 19:57:47 rickward Exp $
+// $Id: penncourse.module,v 1.2 2011/05/23 20:17:17 rickward Exp $
 
 /**
 * Display help and module information
@@ -146,7 +146,7 @@ function penncourse_load_course_node($course_id, $term) {
   
   $course_nid = db_result($result);
   
-  $course_node = node_load($course_nid);
+  $course_node = node_load($course_nid,NULL,TRUE);
   
   if ($course_nid) {
     return $course_node;
@@ -180,7 +180,7 @@ function penncourse_update_section_node ($nid,
                                $status) {
   module_load_include('inc', 'node', 'node.pages');
 
-  $node = node_load($nid);
+  $node = node_load($nid,NULL,TRUE);
 
   $form_state = array();
 
@@ -294,7 +294,7 @@ function penncourse_update_course_node ($nid,
                                $status) {
   module_load_include('inc', 'node', 'node.pages');
 
-  $node = node_load($nid);
+  $node = node_load($nid,NULL,TRUE);
 
   $form_state = array();
 
