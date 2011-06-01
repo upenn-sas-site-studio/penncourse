@@ -1,5 +1,5 @@
 <?php
-// $Id: penncourse.module,v 1.2 2011/05/23 20:17:17 rickward Exp $
+// $Id: penncourse.module,v 1.3 2011/06/01 19:42:12 rickward Exp $
 
 /**
 * Display help and module information
@@ -143,8 +143,8 @@ function penncourse_load_course_node($course_id, $term) {
   // echo 'course lookup sql: '.$sql.chr(10).chr(13);
 
   $result = db_query($sql);
-  
   $course_nid = db_result($result);
+  unset($result);
   
   $course_node = node_load($course_nid,NULL,TRUE);
   
@@ -504,6 +504,7 @@ function penncourse_translate_subject($subj_code) {
 
     $result = db_query($sql);
     $subj_descr = db_result($result);
+    unset($result);
   }
   return $subj_descr;
 } // function penncourse_translate_subject()
@@ -710,6 +711,7 @@ function penncourse_process_subj_area($subj_area,$year = NULL) {
       echo 'No course node found or created. No section node created: '.$section->section_id.chr(10).chr(13);
     }
   }
+  unset($results);
 } // function penncourse_process_subj_area()
 
 /**
@@ -777,6 +779,7 @@ function penncourse_cleanup() {
     // echo 'deleting course node: '.$course->nid.chr(10).chr(13);
     node_delete($course->nid);
   }
+  unset($results);
   
   // get nid's for section nodes to be deleted
   $sql = sprintf("SELECT si.nid FROM " .
@@ -799,6 +802,8 @@ function penncourse_cleanup() {
     // echo 'deleting section node: '.$course->nid.chr(10).chr(13);
     node_delete($course->nid);
   }
+  unset($results);
+  
 }
 
 /**
