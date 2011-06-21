@@ -1,5 +1,5 @@
 <?php
-// $Id: penncourse.pages.inc,v 1.1 2011/05/23 19:57:47 rickward Exp $
+// $Id: penncourse.pages.inc,v 1.2 2011/06/21 21:17:00 rickward Exp $
 
 /**
  * @file
@@ -18,6 +18,7 @@
  * if $subj_code is given, include Subject Area description
  */
 function penncourse_course_list_term($term,$subj_code=NULL) {
+  module_load_include('inc', 'penncourse', 'penncourse.include');
   drupal_add_css(drupal_get_path('module','penncourse').'/penncourse.css');
   $breadcrumb = array(l(t('Home'), NULL));
   if ($subj_code) {
@@ -43,6 +44,7 @@ function penncourse_course_list_term($term,$subj_code=NULL) {
  * menu callback - display the detailed course listing (with sections) for a given course/term
  */
 function penncourse_course_detail($term,$course_id) {
+  module_load_include('inc', 'penncourse', 'penncourse.include');
   drupal_add_css(drupal_get_path('module','penncourse').'/penncourse.css');
   $node = penncourse_load_course_node($course_id,$term);
   
@@ -67,6 +69,7 @@ function penncourse_course_detail($term,$course_id) {
  * load the course data for a given year
  */
 function penncourse_load_year($year) {
+  module_load_include('inc', 'penncourse', 'penncourse.include');
   // check for valid year - no data loaded for years before 2008
   if (!preg_match('/^[0-9]{4}$/',$year) || (($year < 2008) || ($year > date('Y',time())))) {
     $output = 'Invalid year specified.';

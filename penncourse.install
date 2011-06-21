@@ -68,6 +68,102 @@ function penncourse_install () {
   taxonomy_save_vocabulary($vocabulary);
 }
 
+/**
+ * 
+ * 
+ */
+function penncourse_update_6101() {
+  // adding the distribution requirement field to the pc_course content type
+  $distr_req_field = array (
+      'field_name' => 'field_pc_dist_req',
+      'type_name' => 'pc_course',
+      'display_settings' => 
+      array (
+        'label' => 
+        array (
+          'format' => 'above',
+          'exclude' => 0,
+        ),
+        'teaser' => 
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'full' => 
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        4 => 
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        2 => 
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        3 => 
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+        'token' => 
+        array (
+          'format' => 'default',
+          'exclude' => 0,
+        ),
+      ),
+      'widget_active' => '1',
+      'type' => 'text',
+      'required' => '0',
+      'multiple' => '0',
+      'db_storage' => '1',
+      'module' => 'text',
+      'active' => '1',
+      'locked' => '0',
+      'columns' => 
+      array (
+        'value' => 
+        array (
+          'type' => 'text',
+          'size' => 'big',
+          'not null' => false,
+          'sortable' => true,
+          'views' => true,
+        ),
+      ),
+      'text_processing' => '0',
+      'max_length' => '',
+      'allowed_values' => '',
+      'allowed_values_php' => '',
+      'widget' => 
+      array (
+        'rows' => 5,
+        'size' => '60',
+        'default_value' => 
+        array (
+          0 => 
+          array (
+            'value' => '',
+            '_error_element' => 'default_value_widget][field_pc_dist_req][0][value',
+          ),
+        ),
+        'default_value_php' => NULL,
+        'label' => 'Fulfills',
+        'weight' => '4',
+        'description' => '',
+        'type' => 'text_textfield',
+        'module' => 'text',
+      ),
+    );
+    
+  module_load_include('inc', 'content', 'includes/content.crud');
+  // add the field
+  content_field_instance_create($distr_req_field);
+}
+
 function penncourse_uninstall() {
 
 foreach (array('pc_section','pc_course','pc_subject_area_desc') AS $content_type) {

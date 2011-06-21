@@ -463,6 +463,7 @@ function penncourse_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
+  $handler->override_option('items_per_page', 0);
   $handler = $view->new_display('attachment', 'Attachment', 'attachment_1');
   $handler->override_option('fields', array(
     'title' => array(
@@ -568,6 +569,47 @@ function penncourse_views_default_views() {
       ),
       'relationship' => 'none',
     ),
+    'field_pc_dist_req_value' => array(
+      'label' => 'Fulfills',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'target' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'html' => 0,
+        'strip_tags' => 0,
+      ),
+      'empty' => '',
+      'hide_empty' => 1,
+      'empty_zero' => 0,
+      'link_to_node' => 0,
+      'label_type' => 'widget',
+      'format' => 'default',
+      'multiple' => array(
+        'group' => TRUE,
+        'multiple_number' => '',
+        'multiple_from' => '',
+        'multiple_reversed' => FALSE,
+      ),
+      'exclude' => 0,
+      'id' => 'field_pc_dist_req_value',
+      'table' => 'node_data_field_pc_dist_req',
+      'field' => 'field_pc_dist_req_value',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+    ),
   ));
   $handler->override_option('filters', array(
     'status' => array(
@@ -607,6 +649,8 @@ function penncourse_views_default_views() {
   $handler->override_option('attachment_position', 'before');
   $handler->override_option('inherit_arguments', TRUE);
   $handler->override_option('inherit_exposed_filters', FALSE);
+  $handler->override_option('inherit_pager', FALSE);
+  $handler->override_option('render_pager', TRUE);
   $handler->override_option('displays', array(
     'default' => 'default',
   ));
@@ -832,7 +876,7 @@ function penncourse_views_default_views() {
       'field' => 'field_pc_section_id_value',
       'relationship' => 'none',
     ),
-    'field_pc_course_nid' => array(
+    'title' => array(
       'label' => 'Title',
       'alter' => array(
         'alter_text' => 0,
@@ -843,27 +887,23 @@ function penncourse_views_default_views() {
         'alt' => '',
         'prefix' => '',
         'suffix' => '',
+        'target' => '',
         'help' => '',
         'trim' => 0,
         'max_length' => '',
         'word_boundary' => 1,
         'ellipsis' => 1,
-        'strip_tags' => 0,
         'html' => 0,
+        'strip_tags' => 0,
       ),
+      'empty' => '',
+      'hide_empty' => 0,
+      'empty_zero' => 0,
       'link_to_node' => 0,
-      'label_type' => 'custom',
-      'format' => 'plain',
-      'multiple' => array(
-        'group' => TRUE,
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_reversed' => FALSE,
-      ),
       'exclude' => 0,
-      'id' => 'field_pc_course_nid',
-      'table' => 'node_data_field_pc_course',
-      'field' => 'field_pc_course_nid',
+      'id' => 'title',
+      'table' => 'node',
+      'field' => 'title',
       'relationship' => 'none',
     ),
     'field_pc_instructors_value' => array(
@@ -1170,7 +1210,7 @@ function penncourse_views_default_views() {
     ),
     'default' => '-1',
   ));
-
+  
   $views[$view->name] = $view;
 
   // Course Select List
