@@ -22,7 +22,7 @@ function penncourse_admin_settings() {
     '#title' => t('Subject areas'),
     '#required' => TRUE,
     '#default_value' => variable_get('penncourse_subject_areas', ''),
-    '#description' => t('Enter the subject areas from which you would like to display course data on your site. Use the alphanumeric subject code.<br> List multiple subject areas separated by a space (<em>eg,<em> "DTCH GRMN SCND YDSH").'),
+    '#description' => t('Enter the subject areas from which you would like to display course data on your site. Use the alphanumeric subject code.<br> List multiple subject areas separated by a space (<em>eg,</em> "DTCH GRMN SCND YDSH").'),
   );
   
   return system_settings_form($form);
@@ -51,7 +51,7 @@ function penncourse_admin_settings_validate($form, &$form_state) {
   $subject_areas = trim($form_state['values']['penncourse_subject_areas']);
   
   if (!preg_match('/^([a-zA-Z0-9]{3,4}\s)*[a-zA-Z]{3,4}$/',$subject_areas)) {
-    form_set_error('penncourse_subject_areas', t('An incorrect format was entered. Enter the subject areas from which you would like to display course data on your site. Use the alphanumeric subject code.<br> List multiple subject areas separated by a space (<em>eg,<em> "DTCH GRMN SCND YDSH").'));
+    form_set_error('penncourse_subject_areas', t('An incorrect format was entered. Enter the subject areas from which you would like to display course data on your site. Use the alphanumeric subject code.<br> List multiple subject areas separated by a space (<em>eg,</em> "DTCH GRMN SCND YDSH").'));
   }
 }
 
