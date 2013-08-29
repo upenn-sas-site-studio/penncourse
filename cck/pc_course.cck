@@ -13,7 +13,6 @@ $content['type']  = array (
     'sticky' => false,
     'revision' => false,
   ),
-  'language_content_type' => 0,
   'upload' => '0',
   'old_type' => 'pc_course',
   'orig_type' => '',
@@ -30,6 +29,9 @@ $content['type']  = array (
   'comment_subject_field' => '1',
   'comment_preview' => '1',
   'comment_form_location' => '0',
+  'ant' => 0,
+  'ant_pattern' => '',
+  'auto_nodetitle_php' => '',
 );
 $content['fields']  = array (
   0 => 
@@ -133,6 +135,7 @@ $content['fields']  = array (
     'group' => false,
     'required' => 0,
     'multiple' => '0',
+    'validate_url' => true,
     'url' => 0,
     'title' => 'none',
     'title_value' => '',
@@ -146,6 +149,7 @@ $content['fields']  = array (
       'target' => 'default',
       'rel' => 'nofollow',
       'class' => 'pc-syllabus-url',
+      'title' => '',
     ),
     'op' => 'Save field settings',
     'module' => 'link',
@@ -155,7 +159,7 @@ $content['fields']  = array (
       'url' => 
       array (
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 2048,
         'not null' => false,
         'sortable' => true,
       ),
@@ -699,6 +703,96 @@ $content['fields']  = array (
       'label' => 
       array (
         'format' => 'inline',
+      ),
+      'teaser' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  8 => 
+  array (
+    'label' => 'Fulfills',
+    'field_name' => 'field_pc_dist_req',
+    'type' => 'text',
+    'widget_type' => 'text_textfield',
+    'change' => 'Change basic information',
+    'weight' => '4',
+    'rows' => 5,
+    'size' => '60',
+    'description' => '',
+    'default_value' => 
+    array (
+      0 => 
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_pc_dist_req][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' => 
+    array (
+      'field_pc_dist_req' => 
+      array (
+        0 => 
+        array (
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_pc_dist_req][0][value',
+        ),
+      ),
+    ),
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' => 
+    array (
+      'value' => 
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+    ),
+    'display_settings' => 
+    array (
+      'label' => 
+      array (
+        'format' => 'above',
+        'exclude' => 0,
       ),
       'teaser' => 
       array (
