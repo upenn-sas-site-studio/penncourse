@@ -15,12 +15,40 @@ $content['type']  = array (
   ),
   'language_content_type' => 0,
   'upload' => '0',
+  'ffp_upload' => 
+  array (
+    'file_path' => '',
+    'file_path_cleanup' => 
+    array (
+      'file_path_pathauto' => 0,
+      'file_path_tolower' => 0,
+      'file_path_transliterate' => 0,
+    ),
+    'file_name' => '[filefield-onlyname-original].[filefield-extension-original]',
+    'file_name_cleanup' => 
+    array (
+      'file_name_pathauto' => 0,
+      'file_name_tolower' => 0,
+      'file_name_transliterate' => 0,
+    ),
+    'file_alias' => 'system/files/[filefield-onlyname-original].[filefield-extension-original]',
+    'file_alias_display' => 0,
+    'file_alias_cleanup' => 
+    array (
+      'file_alias_pathauto' => 0,
+      'file_alias_tolower' => 0,
+      'file_alias_transliterate' => 0,
+    ),
+    'retroactive_update' => '',
+    'active_updating' => 0,
+  ),
   'old_type' => 'pc_section',
   'orig_type' => '',
   'module' => 'node',
   'custom' => '1',
   'modified' => '1',
   'locked' => '0',
+  'xmlsitemap_node_type_priority' => 0.5,
   'comment' => '0',
   'comment_default_mode' => '4',
   'comment_default_order' => '1',
@@ -30,6 +58,12 @@ $content['type']  = array (
   'comment_subject_field' => '1',
   'comment_preview' => '1',
   'comment_form_location' => '0',
+  'print_display' => 1,
+  'print_display_comment' => 0,
+  'print_display_urllist' => 1,
+  'ant' => 0,
+  'ant_pattern' => '',
+  'auto_nodetitle_php' => '',
 );
 $content['fields']  = array (
   0 => 
@@ -122,18 +156,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_instructors' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          'format' => 1,
-          '_error_element' => 'default_value_widget][field_pc_instructors][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -220,18 +243,7 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_meeting' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_meeting][0][value',
-          'format' => 1,
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -319,18 +331,7 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_location' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          'format' => '1',
-          '_error_element' => 'default_value_widget][field_pc_location][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -412,17 +413,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_section_id' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_section_id][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -497,16 +488,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_course' => 
-      array (
-        'nid' => 
-        array (
-          'nid' => '',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -527,6 +509,14 @@ $content['fields']  = array (
       'profile' => false,
       'urbs_student' => false,
       'webform' => false,
+      'events' => false,
+      'maj_seminar' => false,
+      'news' => false,
+      'outcome_rubric' => false,
+      'publication' => false,
+      'maj_sem_student' => false,
+      'slideshow' => false,
+      'student' => false,
     ),
     'advanced_view' => 'pc_course_select',
     'advanced_view_args' => '',
@@ -540,6 +530,7 @@ $content['fields']  = array (
         'type' => 'int',
         'unsigned' => true,
         'not null' => false,
+        'index' => true,
       ),
     ),
     'display_settings' => 
@@ -601,17 +592,7 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_subj_area' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_subj_area][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -692,17 +673,7 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_term' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_term][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -778,17 +749,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_term_session' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_term_session][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -863,17 +824,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_activity' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_activity][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -948,17 +899,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_course_no' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_course_no][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -1033,17 +974,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_section_no' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_section_no][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -1118,18 +1049,7 @@ $content['fields']  = array (
     array (
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_xlist' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          'format' => 1,
-          '_error_element' => 'default_value_widget][field_pc_xlist][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -1213,19 +1133,11 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_syllabus_url' => 
-      array (
-        0 => 
-        array (
-          'url' => '',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
+    'validate_url' => 0,
     'url' => 0,
     'title' => 'none',
     'title_value' => '',
@@ -1239,6 +1151,7 @@ $content['fields']  = array (
       'target' => 'default',
       'rel' => 'nofollow',
       'class' => 'pc-syllabus-url',
+      'title' => '',
     ),
     'op' => 'Save field settings',
     'module' => 'link',
@@ -1248,7 +1161,7 @@ $content['fields']  = array (
       'url' => 
       array (
         'type' => 'varchar',
-        'length' => 255,
+        'length' => 2048,
         'not null' => false,
         'sortable' => true,
       ),
@@ -1308,12 +1221,182 @@ $content['fields']  = array (
   ),
   14 => 
   array (
+    'label' => 'Section Reg Control',
+    'field_name' => 'field_pc_sec_reg_ctrl',
+    'type' => 'text',
+    'widget_type' => 'text_textfield',
+    'change' => 'Change basic information',
+    'weight' => '10',
+    'rows' => 5,
+    'size' => '60',
+    'description' => '',
+    'default_value' => 
+    array (
+      0 => 
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_pc_sec_reg_ctrl][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' => NULL,
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' => 
+    array (
+      'value' => 
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+    ),
+    'display_settings' => 
+    array (
+      'label' => 
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      5 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  15 => 
+  array (
+    'label' => 'Section Type',
+    'field_name' => 'field_pc_sec_type',
+    'type' => 'text',
+    'widget_type' => 'text_textfield',
+    'change' => 'Change basic information',
+    'weight' => '11',
+    'rows' => 5,
+    'size' => '60',
+    'description' => '',
+    'default_value' => 
+    array (
+      0 => 
+      array (
+        'value' => '',
+        '_error_element' => 'default_value_widget][field_pc_sec_type][0][value',
+      ),
+    ),
+    'default_value_php' => '',
+    'default_value_widget' => NULL,
+    'group' => false,
+    'required' => 0,
+    'multiple' => '0',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'op' => 'Save field settings',
+    'module' => 'text',
+    'widget_module' => 'text',
+    'columns' => 
+    array (
+      'value' => 
+      array (
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => false,
+        'sortable' => true,
+        'views' => true,
+      ),
+    ),
+    'display_settings' => 
+    array (
+      'label' => 
+      array (
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      4 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      2 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      3 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      5 => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'token' => 
+      array (
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+  ),
+  16 => 
+  array (
     'label' => 'Status',
     'field_name' => 'field_pc_status',
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '10',
+    'weight' => '12',
     'rows' => 5,
     'size' => '10',
     'description' => 'The Status field is intended for use with course data loaded automatically from the Data Warehouse. This field should not be updated by end users.',
@@ -1326,17 +1409,7 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_status' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_status][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 0,
     'multiple' => '0',
@@ -1397,14 +1470,14 @@ $content['fields']  = array (
       ),
     ),
   ),
-  15 => 
+  17 => 
   array (
     'label' => 'Course ID',
     'field_name' => 'field_pc_course_id',
     'type' => 'text',
     'widget_type' => 'text_textfield',
     'change' => 'Change basic information',
-    'weight' => '13',
+    'weight' => '14',
     'rows' => 5,
     'size' => '10',
     'description' => 'The course identifier (eg, ANTH001).',
@@ -1417,17 +1490,7 @@ $content['fields']  = array (
       ),
     ),
     'default_value_php' => '',
-    'default_value_widget' => 
-    array (
-      'field_pc_course_id' => 
-      array (
-        0 => 
-        array (
-          'value' => '',
-          '_error_element' => 'default_value_widget][field_pc_course_id][0][value',
-        ),
-      ),
-    ),
+    'default_value_widget' => NULL,
     'group' => false,
     'required' => 1,
     'multiple' => '0',
@@ -1491,5 +1554,11 @@ $content['fields']  = array (
 );
 $content['extra']  = array (
   'title' => '-5',
-  'menu' => '11',
+  'revision_information' => '15',
+  'author' => '16',
+  'options' => '17',
+  'comment_settings' => '19',
+  'menu' => '13',
+  'path' => '20',
+  'print' => '18',
 );

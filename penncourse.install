@@ -73,6 +73,7 @@ function penncourse_install () {
  * 
  */
 function penncourse_update_6101() {
+  module_load_include('inc', 'content', 'includes/content.crud');
   // adding the distribution requirement field to the pc_course content type
   $distr_req_field = array (
       'field_name' => 'field_pc_dist_req',
@@ -159,58 +160,247 @@ function penncourse_update_6101() {
       ),
     );
     
-  module_load_include('inc', 'content', 'includes/content.crud');
   // add the field
   content_field_instance_create($distr_req_field);
 }
 
+function penncourse_update_6102() {
+  module_load_include('inc', 'content', 'includes/content.crud');
+  // adding the section registration control field to the pc_section content type
+  $sec_reg_ctrl_field = array (
+                          'field_name' => 'field_pc_sec_reg_ctrl',
+                          'type_name' => 'pc_section',
+                          'display_settings' =>
+                          array (
+                            'label' =>
+                            array (
+                              'format' => 'above',
+                              'exclude' => 0,
+                            ),
+                            'teaser' =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            'full' =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            4 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            2 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            3 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            5 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            'token' =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                          ),
+                          'widget_active' => '1',
+                          'type' => 'text',
+                          'required' => '0',
+                          'multiple' => '0',
+                          'db_storage' => '1',
+                          'module' => 'text',
+                          'active' => '1',
+                          'locked' => '0',
+                          'columns' =>
+                          array (
+                            'value' =>
+                            array (
+                              'type' => 'text',
+                              'size' => 'big',
+                              'not null' => false,
+                              'sortable' => true,
+                              'views' => true,
+                            ),
+                          ),
+                          'text_processing' => '0',
+                          'max_length' => '',
+                          'allowed_values' => '',
+                          'allowed_values_php' => '',
+                          'widget' =>
+                          array (
+                            'rows' => 5,
+                            'size' => '60',
+                            'default_value' =>
+                            array (
+                              0 =>
+                              array (
+                                'value' => '',
+                                '_error_element' => 'default_value_widget][field_pc_sec_reg_ctrl][0][value',
+                              ),
+                            ),
+                            'default_value_php' => NULL,
+                            'label' => 'Section Reg Control',
+                            'weight' => '10',
+                            'description' => '',
+                            'type' => 'text_textfield',
+                            'module' => 'text',
+                          ),
+                        );
+
+  // add the field
+  content_field_instance_create($sec_reg_ctrl_field);
+
+  // add the section type field
+  $section_type_field = array (
+                          'field_name' => 'field_pc_sec_type',
+                          'type_name' => 'pc_section',
+                          'display_settings' =>
+                          array (
+                            'label' =>
+                            array (
+                              'format' => 'above',
+                              'exclude' => 0,
+                            ),
+                            'teaser' =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            'full' =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            4 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            2 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            3 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            5 =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                            'token' =>
+                            array (
+                              'format' => 'default',
+                              'exclude' => 0,
+                            ),
+                          ),
+                          'widget_active' => '1',
+                          'type' => 'text',
+                          'required' => '0',
+                          'multiple' => '0',
+                          'db_storage' => '1',
+                          'module' => 'text',
+                          'active' => '1',
+                          'locked' => '0',
+                          'columns' =>
+                          array (
+                            'value' =>
+                            array (
+                              'type' => 'text',
+                              'size' => 'big',
+                              'not null' => false,
+                              'sortable' => true,
+                              'views' => true,
+                            ),
+                          ),
+                          'text_processing' => '0',
+                          'max_length' => '',
+                          'allowed_values' => '',
+                          'allowed_values_php' => '',
+                          'widget' =>
+                          array (
+                            'rows' => 5,
+                            'size' => '60',
+                            'default_value' =>
+                            array (
+                              0 =>
+                              array (
+                                'value' => '',
+                                '_error_element' => 'default_value_widget][field_pc_sec_type][0][value',
+                              ),
+                            ),
+                            'default_value_php' => NULL,
+                            'label' => 'Section Type',
+                            'weight' => '11',
+                            'description' => '',
+                            'type' => 'text_textfield',
+                            'module' => 'text',
+                          ),
+                        );
+
+  content_field_instance_create($sec_type_field);
+}
+
 function penncourse_uninstall() {
 
-foreach (array('pc_section','pc_course','pc_subject_area_desc') AS $content_type) {
-    // get field information for $content_type
-    $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE type_name = '%s'",$content_type);
-    $result_set = db_query($sql);
+    foreach (array('pc_section','pc_course','pc_subject_area_desc') AS $content_type) {
+        // get field information for $content_type
+        $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE type_name = '%s'",$content_type);
+        $result_set = db_query($sql);
 
-    // loop through each field for this type and remove references and tables
-    while ($result = db_fetch_object($result_set)) {
-      $db_info = content_database_info(content_fields($result->field_name,$content_type));
-      $field_table = $db_info['table'];
-      
-      // remove content_node_field_instance record
-      $sql = sprintf("DELETE FROM content_node_field_instance WHERE field_name = '%s' AND type_name = '%s'",$result->field_name,$content_type);
-      $action = db_query($sql);
-      
-      // if this is the only content type that uses this field, remove all references
-      $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE field_name = '%s'",$result->field_name);
-      $field_check = db_query($sql);
-      if (!($field_check->num_rows)) {
-        // delete content_node_field record
-        $sql = sprintf("DELETE FROM content_node_field WHERE field_name = '%s'",$result->field_name);
-        $action = db_query($sql);
-        
-        // drop field table
-        $sql = sprintf("DROP TABLE IF EXISTS %s",$field_table);
-        $action = db_query($sql);
-      }
+        // loop through each field for this type and remove references and tables
+        while ($result = db_fetch_object($result_set)) {
+            $db_info = content_database_info(content_fields($result->field_name,$content_type));
+            $field_table = $db_info['table'];
+
+            // remove content_node_field_instance record
+            $sql = sprintf("DELETE FROM content_node_field_instance WHERE field_name = '%s' AND type_name = '%s'",$result->field_name,$content_type);
+            $action = db_query($sql);
+
+            // if this is the only content type that uses this field, remove all references
+            $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE field_name = '%s'",$result->field_name);
+            $field_check = db_query($sql);
+            if (!($field_check->num_rows)) {
+                // delete content_node_field record
+                $sql = sprintf("DELETE FROM content_node_field WHERE field_name = '%s'",$result->field_name);
+                $action = db_query($sql);
+
+                // drop field table
+                $sql = sprintf("DROP TABLE IF EXISTS %s",$field_table);
+                $action = db_query($sql);
+            }
+        }
+    
+        // delete $content_type records from node_revisions
+        $sql = sprintf("DELETE FROM node_revisions WHERE nid IN (SELECT nid FROM node WHERE type = '%s')",$content_type);
+        $result = db_query($sql);
+
+        // delete node records for $content_type
+        $sql = sprintf("DELETE FROM node WHERE type = '%s'",$content_type);
+        $result = db_query($sql);
+
+        // delete node_type for $content_type
+        $sql = sprintf("DELETE FROM node_type WHERE type = '%s'",$content_type);
+        $result = db_query($sql);
     }
-    
-    // delete $content_type records from node_revisions
-    $sql = sprintf("DELETE FROM node_revisions WHERE nid IN (SELECT nid FROM node WHERE type = '%s')",$content_type);
-    $result = db_query($sql);
-    
-    // delete node records for $content_type
-    $sql = sprintf("DELETE FROM node WHERE type = '%s'",$content_type);
-    $result = db_query($sql);
-    
-    // delete node_type for $content_type
-    $sql = sprintf("DELETE FROM node_type WHERE type = '%s'",$content_type);
-    $result = db_query($sql);    
-  }
   
-  variable_del('penncourse_subject_areas');
+    variable_del('penncourse_subject_areas');
 
-  // delete cache_content
-  // content_clear_type_cache();
-  
-  // delete Course Theme vocabulary
+    // delete cache_content
+    // content_clear_type_cache();
+
+    // delete Course Theme vocabulary
 }
