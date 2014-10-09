@@ -1,216 +1,209 @@
 <?php
-// penncourse.install
-
 /**
-* Programmatically create CCK fields and types using the content copy module
-* @param $type string
-* content type to create, defaults to new type, if type exists, only fields will be added
-* @param $macro array
-* exported array from content types -> export. If file is not specified, macro will be used
-* @param $file string
-* path to file containing content copy exported macro data structure. no escaping needed.
-*/
-function base_create_content($type = '<create>', $macro = '', $file = '') {
-  if(!module_exists("content_copy")){
-    drupal_set_message('Programmatically creating CCK fields requires the Content Copy module. Exiting.');
-    return;
-  }
-  
-  // get macro import data, prefer file first
-  // assign $file content to $macro, if file is available
-  if($file){
-    if(file_exists($file)){
-      $macro = file_get_contents($file);
-    }else{
-      drupal_set_message('Unable to read input file for import. Exiting.');
-      return;
-    }
-  }
-
-  // build form state
-  $form_state = array(
-    'values' => array(
-      'type_name' => $type,
-      'macro' => $macro,
-    ),
-  );
-
-  //import content by executing content copy import form and passing macro
-  drupal_execute("content_copy_import_form", $form_state);
-  content_clear_type_cache();
-}
-
-
-function penncourse_install () {
-
-  // create subject area content type
-  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_subject_area_desc.cck');
-
-  // create course content type
-  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_course.cck');
-
-  // create section content type
-  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_section.cck');
-  
-  // Create the Course Theme vocabulary
-  $vocabulary = array(
-    'name' => t('Course Theme'),
-    'multiple' => 1,
-    'description' => 'Used to group courses by theme for the Penncourse module. Not used by all departments',
-    'required' => 0,
-    'hierarchy' => 1,
-    'relations' => 0,
-    'module' => 'penncourse',
-    'weight' => 0,
-    'nodes' => array('pc_course' => 1),
-  );
-  
-  taxonomy_save_vocabulary($vocabulary);
-}
-
-/**
- * 
- * 
+ * @file
+ * penncourse.install
+ *
+ * Installation and upgrade functions for the PennCourse module
  */
-function penncourse_update_6101() {
-  // adding the distribution requirement field to the pc_course content type
-  $distr_req_field = array (
-      'field_name' => 'field_pc_dist_req',
-      'type_name' => 'pc_course',
-      'display_settings' => 
-      array (
-        'label' => 
-        array (
-          'format' => 'above',
-          'exclude' => 0,
+
+
+/**
+ * Programmatically create CCK fields and types using the content copy module
+ * @param $type string
+ * content type to create, defaults to new type, if type exists, only fields will be added
+ * @param $macro array
+ * exported array from content types -> export. If file is not specified, macro will be used
+ * @param $file string
+ * path to file containing content copy exported macro data structure. no escaping needed.
+ */
+function base_create_content($type = '<create>', $macro = '', $file = '') {
+    if (!module_exists("content_copy")) {
+        drupal_set_message(t('Programmatically creating CCK fields requires the Content Copy module. Exiting.'));
+        return;
+    }
+
+    // get macro import data, prefer file first
+    // assign $file content to $macro, if file is available
+    if ($file) {
+        if (file_exists($file)) {
+            $macro = file_get_contents($file);
+        }
+        else {
+            drupal_set_message(t('Unable to read input file for import. Exiting.'));
+            return;
+        }
+    }
+
+    // build form state
+    $form_state = array(
+        'values' => array(
+            'type_name' => $type,
+            'macro' => $macro,
         ),
-        'teaser' => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        'full' => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        4 => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        2 => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        3 => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        'token' => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-      ),
-      'widget_active' => '1',
-      'type' => 'text',
-      'required' => '0',
-      'multiple' => '0',
-      'db_storage' => '1',
-      'module' => 'text',
-      'active' => '1',
-      'locked' => '0',
-      'columns' => 
-      array (
-        'value' => 
-        array (
-          'type' => 'text',
-          'size' => 'big',
-          'not null' => false,
-          'sortable' => true,
-          'views' => true,
-        ),
-      ),
-      'text_processing' => '0',
-      'max_length' => '',
-      'allowed_values' => '',
-      'allowed_values_php' => '',
-      'widget' => 
-      array (
-        'rows' => 5,
-        'size' => '60',
-        'default_value' => 
-        array (
-          0 => 
-          array (
-            'value' => '',
-            '_error_element' => 'default_value_widget][field_pc_dist_req][0][value',
-          ),
-        ),
-        'default_value_php' => NULL,
-        'label' => 'Fulfills',
-        'weight' => '4',
-        'description' => '',
-        'type' => 'text_textfield',
-        'module' => 'text',
-      ),
     );
-    
-  module_load_include('inc', 'content', 'includes/content.crud');
-  // add the field
-  content_field_instance_create($distr_req_field);
+
+    //import content by executing content copy import form and passing macro
+    drupal_form_submit("content_copy_import_form", $form_state);
+    content_clear_type_cache();
 }
 
+function penncourse_text_format_enable() {
+    $format_exists = (bool) db_query_range('SELECT 1 FROM {filter_format} WHERE name = :name', 0, 1, array(':name' => 'Penncourse Formatted'))->fetchField();
+    // Add a Penncourse Formatted text format, if it does not exist. Do this only for the
+    // first install (or if the format has been manually deleted) as there is no
+    // reliable method to identify the format in an uninstall hook or in
+    // subsequent clean installs.
+    if (!$format_exists) {
+        $penncourse_format = array(
+            'format' => 'penncourse_format',
+            'name' => 'Penncourse Formatted',
+
+            // 'Plain text' format is installed with a weight of 10 by default. Use a
+            // higher weight here to ensure that this format will not be the default
+            // format for anyone.
+            'weight' => 20,
+            'filters' => array(
+
+                // Enable the filter_html filter.
+                'filter_html' => array(
+                    'weight' => 1,
+                    'status' => 1,
+                    'settings' => array(
+                        'allowed_html' => '<a> <em> <strong> <cite> <blockquote> <code> <ul> <ol> <li> <dl> <dt> <dd> <span> <p> <br>',
+                        'filter_html_help' => 1,
+                        'filter_html_nofollow' => 0
+                    )
+                ),
+            ),
+        );
+        $penncourse_format = (object) $penncourse_format;
+        filter_format_save($penncourse_format);
+
+        drupal_set_message(t('A <a href="@php-code">PHP code</a> text format has been created.', array('@php-code' => url('admin/config/content/formats/' . $php_format->format))));
+    }
+}
+
+
+function penncourse_install() {
+    module_load_include('inc', 'penncourse', 'penncourse.fields');
+    penncourse_build_fields();
+
+    // create subject area content type
+    // base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module', 'penncourse') . '/cck/pc_subject_area_desc.cck');
+
+    // create course content type
+    // base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module', 'penncourse') . '/cck/pc_course.cck');
+
+    // create section content type
+    // base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module', 'penncourse') . '/cck/pc_section.cck');
+
+    // Create the Course Theme vocabulary
+    $vocabulary = new stdClass();
+    $vocabulary->name = st('Course Theme');
+    $vocabulary->machine_name = 'course_theme';
+    $vocabulary->description = st('Used to group courses by theme for the Penncourse module. Not used by all departments.');
+    $vocabulary->required = 0;
+    $vocabulary->heirarchy = 0;
+    $vocabulary->relations = 0;
+    $vocabulary->module = 'penncourse';
+    $vocabulary->weight = 0;
+    $vocabulary->nodes = array('pc_course' => 1);
+
+    taxonomy_vocabulary_save($vocabulary);
+}
+
+/**
+ * implementation of hook_uninstall
+ */
 function penncourse_uninstall() {
 
-foreach (array('pc_section','pc_course','pc_subject_area_desc') AS $content_type) {
-    // get field information for $content_type
-    $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE type_name = '%s'",$content_type);
-    $result_set = db_query($sql);
+    // delete all nodes for the penncourse content types
+    foreach (array('pc_section', 'pc_course') AS $content_type) {
+        // gather all $content_type nodes created
+        $sql = 'SELECT nid FROM {node} n WHERE n.type = :type';
+        $result = db_query($sql, array(':type' => $content_type));
+        $nids = array();
+        foreach ($result as $row) {
+            $nids[] = $row->nid;
+        }
+        // delete all the $content_type nodes at once
+        node_delete_multiple($nids);
 
-    // loop through each field for this type and remove references and tables
-    while ($result = db_fetch_object($result_set)) {
-      $db_info = content_database_info(content_fields($result->field_name,$content_type));
-      $field_table = $db_info['table'];
-      
-      // remove content_node_field_instance record
-      $sql = sprintf("DELETE FROM content_node_field_instance WHERE field_name = '%s' AND type_name = '%s'",$result->field_name,$content_type);
-      $action = db_query($sql);
-      
-      // if this is the only content type that uses this field, remove all references
-      $sql = sprintf("SELECT field_name FROM content_node_field_instance WHERE field_name = '%s'",$result->field_name);
-      $field_check = db_query($sql);
-      if (!($field_check->num_rows)) {
-        // delete content_node_field record
-        $sql = sprintf("DELETE FROM content_node_field WHERE field_name = '%s'",$result->field_name);
-        $action = db_query($sql);
-        
-        // drop field table
-        $sql = sprintf("DROP TABLE IF EXISTS %s",$field_table);
-        $action = db_query($sql);
-      }
+        // remove peristant variables that control settings
+        variable_del('additional_settings__active_tab_' . $content_type);
+        variable_del('node_preview_' . $content_type);
+        variable_del('node_options_' . $content_type);
+        variable_del('node_submitted_' . $content_type);
+        variable_del('menu_options_' . $content_type);
+        variable_del('menu_parent_' . $content_type);
     }
-    
-    // delete $content_type records from node_revisions
-    $sql = sprintf("DELETE FROM node_revisions WHERE nid IN (SELECT nid FROM node WHERE type = '%s')",$content_type);
-    $result = db_query($sql);
-    
-    // delete node records for $content_type
-    $sql = sprintf("DELETE FROM node WHERE type = '%s'",$content_type);
-    $result = db_query($sql);
-    
-    // delete node_type for $content_type
-    $sql = sprintf("DELETE FROM node_type WHERE type = '%s'",$content_type);
-    $result = db_query($sql);    
-  }
-  
-  variable_del('penncourse_subject_areas');
 
-  // delete cache_content
-  // content_clear_type_cache();
-  
-  // delete Course Theme vocabulary
+    // find all fields and delete them
+    $fields = field_info_field_map();
+    foreach (array_keys(_jobs_installed_fields()) as $field) {
+        field_delete_field($field);
+    }
+
+    foreach (array('pc_section', 'pc_course') AS $content_type) {
+        // find all fields and delete instance
+        $instances = field_info_instances('node', $content_type);
+        foreach ($instances as $instance_name => $instance) {
+            field_delete_instance($instance);
+        }
+
+        // delete our content type
+        node_type_delete($content_type);
+    }
+
+    // purge all field information
+    field_purge_batch(1000);
+
+
+    foreach (array('pc_section', 'pc_course', 'pc_subject_area_desc') AS $content_type) {
+        // get field information for $content_type
+        $sql = sprintf("SELECT field_name FROM {content_node_field_instance} WHERE type_name = '%s'", $content_type);
+        $result_set = db_query($sql);
+
+        // loop through each field for this type and remove references and tables
+        while ($result = db_fetch_object($result_set)) {
+            $db_info = content_database_info(content_fields($result->field_name, $content_type));
+            $field_table = $db_info['table'];
+
+            // remove content_node_field_instance record
+            $sql = sprintf("DELETE FROM {content_node_field_instance} WHERE field_name = '%s' AND type_name = '%s'", $result->field_name, $content_type);
+            $action = db_query($sql);
+
+            // if this is the only content type that uses this field, remove all references
+            $sql = sprintf("SELECT field_name FROM {content_node_field_instance} WHERE field_name = '%s'", $result->field_name);
+            $field_check = db_query($sql);
+            if (!($field_check->num_rows)) {
+                // delete content_node_field record
+                $sql = sprintf("DELETE FROM {content_node_field} WHERE field_name = '%s'", $result->field_name);
+                $action = db_query($sql);
+
+                // drop field table
+                $sql = sprintf("DROP TABLE IF EXISTS {%s}", $field_table);
+                $action = db_query($sql);
+            }
+        }
+
+        // delete $content_type records from node_revisions
+        $sql = sprintf("DELETE FROM {node_revision} WHERE nid IN (SELECT nid FROM node WHERE type = '%s')", $content_type);
+        $result = db_query($sql);
+
+        // delete node records for $content_type
+        $sql = sprintf("DELETE FROM {node} WHERE type = '%s'", $content_type);
+        $result = db_query($sql);
+
+        // delete node_type for $content_type
+        $sql = sprintf("DELETE FROM {node_type} WHERE type = '%s'", $content_type);
+        $result = db_query($sql);
+    }
+
+    variable_del('penncourse_subject_areas');
+
+    // delete cache_content
+    // content_clear_type_cache();
+
+    // delete Course Theme vocabulary
 }

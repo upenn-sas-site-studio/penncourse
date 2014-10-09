@@ -1,5 +1,10 @@
 <?php
-// $Id: penncourse.admin.inc,v 1.1 2011/05/23 19:57:47 rickward Exp $
+/**
+ * @file
+ * penncourse.admin.inc
+ *
+ * Form functions for the administration pages for the PennCourse module
+ */
 
 /**
  * function penncourse_admin_settings()
@@ -35,7 +40,7 @@ function penncourse_admin_settings() {
  */
 function penncourse_get_all_subject_areas() {
   $options = array();
-  $results = db_query('SELECT DISTINCT subject_area, subject_area_desc FROM warehousesync.pc_subj_area_temp ORDER BY subject_area_desc');
+  $results = db_query('SELECT DISTINCT subject_area, subject_area_desc FROM {warehousesync.pc_subj_area_temp} ORDER BY subject_area_desc');
   while ($subject_area = db_fetch_object($results)) {
     $options[drupal_html_to_text(check_plain(trim($subject_area->subject_area)))] = drupal_html_to_text(check_plain(trim($subject_area->subject_area_desc)));
   }
@@ -50,7 +55,7 @@ function penncourse_get_all_subject_areas() {
 function penncourse_admin_settings_validate($form, &$form_state) {
   $subject_areas = trim($form_state['values']['penncourse_subject_areas']);
   
-  if (!preg_match('/^([a-zA-Z0-9]{3,4}\s)*[a-zA-Z]{3,4}$/',$subject_areas)) {
+  if (!preg_match('/^([a-zA-Z0-9]{3,4}\s)*[a-zA-Z]{3,4}$/', $subject_areas)) {
     form_set_error('penncourse_subject_areas', t('An incorrect format was entered. Enter the subject areas from which you would like to display course data on your site. Use the alphanumeric subject code.<br> List multiple subject areas separated by a space (<em>eg,</em> "DTCH GRMN SCND YDSH").'));
   }
 }
