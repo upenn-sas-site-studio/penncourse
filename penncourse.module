@@ -136,7 +136,7 @@ function penncourse_cron() {
  *
  * We use hook_node_info() to define our node content type.
  */
-function penncourse_node_info() {
+/* function penncourse_node_info() {
     // We define the node type as an associative array.
     return array(
         'pc_course' => array(
@@ -162,7 +162,7 @@ function penncourse_node_info() {
             'locked' => TRUE,
         ),
     );
-}
+} */
 
 /**
  * function pcpm

@@ -7,15 +7,6 @@
  */
 
 
-/**
- * Programmatically create CCK fields and types using the content copy module
- * @param $type string
- * content type to create, defaults to new type, if type exists, only fields will be added
- * @param $macro array
- * exported array from content types -> export. If file is not specified, macro will be used
- * @param $file string
- * path to file containing content copy exported macro data structure. no escaping needed.
- */
 function base_create_content($type = '<create>', $macro = '', $file = '') {
     if (!module_exists("content_copy")) {
         drupal_set_message(t('Programmatically creating CCK fields requires the Content Copy module. Exiting.'));
@@ -85,17 +76,54 @@ function penncourse_text_format_enable() {
 
 
 function penncourse_install() {
+    // get appropriate translation function
+    $t = get_t();
+    $content_type_array = array(
+        'pc_course' =>
+            array(
+                'display_name' => 'Course',
+                'description' => 'The Course content type is used by the Penncourse module to support display of course listing information.'
+            ),
+        'pc_section' =>
+            array(
+                'display_name' => 'Section',
+                'description' => 'A content type for course section data. This data is intended to be loaded automatically from the data warehouse; however, this content type can be used to manually record course section data for those sites not configured for automatic load.'
+            ),
+    );
+    // build our custom content types
+    foreach ($content_type_array AS $name => $info) {
+        // define the node type
+        $content_type = array(
+            'type' => $name,
+            'name' => $t($info['display_name']),
+            'base' => 'node_content',
+            'title_label' => $t('Title'),
+            'description' => $t($info['description']),
+            'custom' => TRUE,
+        );
+
+        // set other node defaults not declared above
+        $content_type = node_type_set_defaults($content_type);
+
+        // save the content type
+        node_type_save($content_type);
+
+
+        /**** STEP 2 ****/
+
+        // add peristant variables that control settings
+        variable_set('additional_settings__active_tab_' . $name, 'edit-menu');
+        variable_set('node_preview_' . $name, 2);
+        variable_set('node_options_' . $name, array(0 => 'status'));
+        variable_set('comment_default_mode_' . $name, 1);
+        variable_set('node_submitted_' . $name, 0);
+        variable_set('menu_options_' . $name, array());
+        variable_set('menu_parent_' . $name, 'main-menu:0');
+    }
+
+    // add fields
     module_load_include('inc', 'penncourse', 'penncourse.fields');
     penncourse_build_fields();
-
-    // create subject area content type
-    // base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module', 'penncourse') . '/cck/pc_subject_area_desc.cck');
-
-    // create course content type
-    // base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module', 'penncourse') . '/cck/pc_course.cck');
-
-    // create section content type
-    // base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module', 'penncourse') . '/cck/pc_section.cck');
 
     // Create the Course Theme vocabulary
     $vocabulary = new stdClass();
@@ -110,6 +138,9 @@ function penncourse_install() {
     $vocabulary->nodes = array('pc_course' => 1);
 
     taxonomy_vocabulary_save($vocabulary);
+
+    // create and enable text format (supports HTML content in penncourse fields)
+    penncourse_text_format_enable();
 }
 
 /**
@@ -140,7 +171,7 @@ function penncourse_uninstall() {
 
     // find all fields and delete them
     $fields = field_info_field_map();
-    foreach (array_keys(_jobs_installed_fields()) as $field) {
+    foreach (array_keys($fields()) as $field) {
         field_delete_field($field);
     }
 
@@ -158,47 +189,6 @@ function penncourse_uninstall() {
     // purge all field information
     field_purge_batch(1000);
 
-
-    foreach (array('pc_section', 'pc_course', 'pc_subject_area_desc') AS $content_type) {
-        // get field information for $content_type
-        $sql = sprintf("SELECT field_name FROM {content_node_field_instance} WHERE type_name = '%s'", $content_type);
-        $result_set = db_query($sql);
-
-        // loop through each field for this type and remove references and tables
-        while ($result = db_fetch_object($result_set)) {
-            $db_info = content_database_info(content_fields($result->field_name, $content_type));
-            $field_table = $db_info['table'];
-
-            // remove content_node_field_instance record
-            $sql = sprintf("DELETE FROM {content_node_field_instance} WHERE field_name = '%s' AND type_name = '%s'", $result->field_name, $content_type);
-            $action = db_query($sql);
-
-            // if this is the only content type that uses this field, remove all references
-            $sql = sprintf("SELECT field_name FROM {content_node_field_instance} WHERE field_name = '%s'", $result->field_name);
-            $field_check = db_query($sql);
-            if (!($field_check->num_rows)) {
-                // delete content_node_field record
-                $sql = sprintf("DELETE FROM {content_node_field} WHERE field_name = '%s'", $result->field_name);
-                $action = db_query($sql);
-
-                // drop field table
-                $sql = sprintf("DROP TABLE IF EXISTS {%s}", $field_table);
-                $action = db_query($sql);
-            }
-        }
-
-        // delete $content_type records from node_revisions
-        $sql = sprintf("DELETE FROM {node_revision} WHERE nid IN (SELECT nid FROM node WHERE type = '%s')", $content_type);
-        $result = db_query($sql);
-
-        // delete node records for $content_type
-        $sql = sprintf("DELETE FROM {node} WHERE type = '%s'", $content_type);
-        $result = db_query($sql);
-
-        // delete node_type for $content_type
-        $sql = sprintf("DELETE FROM {node_type} WHERE type = '%s'", $content_type);
-        $result = db_query($sql);
-    }
 
     variable_del('penncourse_subject_areas');
 
