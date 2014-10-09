@@ -171,7 +171,7 @@ function penncourse_uninstall() {
 
     // find all fields and delete them
     $fields = field_info_field_map();
-    foreach (array_keys($fields()) as $field) {
+    foreach (array_keys($fields) as $field) {
         field_delete_field($field);
     }
 
