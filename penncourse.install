@@ -70,7 +70,7 @@ function penncourse_text_format_enable() {
         $penncourse_format = (object) $penncourse_format;
         filter_format_save($penncourse_format);
 
-        drupal_set_message(t('A <a href="@php-code">PHP code</a> text format has been created.', array('@php-code' => url('admin/config/content/formats/' . $php_format->format))));
+        drupal_set_message(t('A <a href="@penncourse-format">Penncourse Format</a> text format has been created.', array('@penncourse-format' => url('admin/config/content/formats/' . $penncourse_format->format))));
     }
 }
 
