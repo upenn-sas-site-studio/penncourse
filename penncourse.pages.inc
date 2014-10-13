@@ -13,15 +13,20 @@
  *
  * if $subj_code is given, include Subject Area description
  */
-function penncourse_course_list_term($term, $subj_code = NULL, $level = NULL) {
+function penncourse_course_list_term($term, $subj_code = 'all', $level = 'all') {
     module_load_include('inc', 'penncourse', 'penncourse.include');
     drupal_add_css(drupal_get_path('module', 'penncourse') . '/penncourse.css');
     drupal_add_js(drupal_get_path('module', 'penncourse') . '/js/penncourse_course_table.js');
     $breadcrumb = array(l(t('Home'), NULL));
 
+    // if term is null, set to current term
+    if (!$term) {
+        $term = penncourse_current_term_no_summer();
+    }
+
     // build title string and extra breadcrumb, if needed
     $title = '';
-    if (!$level && (!$subj_code || ($subj_code == 'all'))) {
+    if ((!$level || ($level == 'all')) && (!$subj_code || ($subj_code == 'all'))) {
         $title = 'Courses for ';
     }
     else {
@@ -39,9 +44,6 @@ function penncourse_course_list_term($term, $subj_code = NULL, $level = NULL) {
     drupal_set_breadcrumb($breadcrumb);
 
     $output = '';
-    if ($subj_code) {
-        $output .= views_embed_view('pc_subj_area_descr', 'default', $subj_code);
-    }
     $output .= views_embed_view('pc_section_table', 'default', $term, $subj_code, $level);
 
     return $output;

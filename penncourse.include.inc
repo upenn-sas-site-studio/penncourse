@@ -92,17 +92,17 @@ function penncourse_build_section_node($nid = NULL, $values_array) {
     $node->title = $values_array['course_id'] . ' - ' . $values_array['title'];
     // $node->field_pc_descr[0]['value'] = $values_array['descr']; this field is maintained locally by departments
     $node->field_pc_instructors[$node->language][0]['value'] = $values_array['instructors'];
-    $node->field_pc_instructors[$node->language][0]['format'] = 'filtered_html'; // we need to set formats too
+    $node->field_pc_instructors[$node->language][0]['format'] = 'penncourse_format'; // we need to set formats too
     if ($values_array['status'] == 'X') {
         $node->field_pc_meeting[$node->language][0]['value'] = 'CANCELED';
     }
     else {
         $node->field_pc_meeting[$node->language][0]['value'] = $values_array['meeting'];
     }
-    $node->field_pc_meeting[$node->language][0]['format'] = 'filtered_html'; // we need to set formats too
+    $node->field_pc_meeting[$node->language][0]['format'] = 'penncourse_format'; // we need to set formats too
     $node->field_pc_title[$node->language][0]['value'] = $values_array['title'];
     $node->field_pc_location[$node->language][0]['value'] = $values_array['location'];
-    $node->field_pc_location[$node->language][0]['format'] = 'filtered_html'; // we need to set formats too
+    $node->field_pc_location[$node->language][0]['format'] = 'penncourse_format'; // we need to set formats too
     $node->field_pc_section_id[$node->language][0]['value'] = $values_array['section_id'];
     $node->field_pc_course[$node->language][0]['nid'] = $values_array['course'];
     $node->field_pc_subj_area[$node->language][0]['value'] = $values_array['subj_area'];
@@ -112,7 +112,7 @@ function penncourse_build_section_node($nid = NULL, $values_array) {
     $node->field_pc_course_no[$node->language][0]['value'] = $values_array['course_no'];
     $node->field_pc_section_no[$node->language][0]['value'] = $values_array['section_no'];
     $node->field_pc_xlist[$node->language][0]['value'] = $values_array['xlist'];
-    $node->field_pc_xlist[$node->language][0]['format'] = 'filtered_html'; // we need to set formats too
+    $node->field_pc_xlist[$node->language][0]['format'] = 'penncourse_format'; // we need to set formats too
     $node->field_pc_syllabus_url[$node->language][0]['url'] = $values_array['syllabus_url'];
     $node->field_pc_status[$node->language][0]['value'] = $values_array['status'];
     $node->field_pc_course_id[$node->language][0]['value'] = $values_array['course_id'];
@@ -918,6 +918,24 @@ function penncourse_current_term() {
 } // function penncourse_current_term()
 
 /**
+ * function penncourse_current_term_no_summer()
+ * returns the current term (excluding summer terms)
+ * A = January 1 through May 20
+ * C = May 21 through December 31
+ */
+function penncourse_current_term_no_summer() {
+    // get database information about course_course_id field
+    $term = date('Y', REQUEST_TIME);
+    if ((date('n', REQUEST_TIME) <= 5) && ((date('j', REQUEST_TIME) <= 20) || (date('n', REQUEST_TIME) <= 4))) {
+        $term .= 'A';
+    }
+    else {
+        $term .= 'C';
+    }
+    return $term;
+} // function penncourse_current_term()
+
+/**
  * penncourse_load_course_node($course_id)
  *
  * load course node for a course id and term
@@ -1002,6 +1020,12 @@ function penncourse_load_course_node($course_id, $term) {
 
 } // function penncourse_load_course_node($subj_code)
 
+/**
+ * @param $course_id
+ * @param $term
+ * @return mixed|null
+ * Return the node ID for a given course given the SRS Course ID and Term
+ */
 function penncourse_find_course_nid($course_id, $term) {
     $query = new EntityFieldQuery();
     $entity = $query->entityCondition('entity_type', 'node')
@@ -1022,3 +1046,36 @@ function penncourse_find_course_nid($course_id, $term) {
     }
 }
 
+/**
+ * Return an array of all course terms currently stored in the database
+ */
+function penncourse_get_all_terms() {
+    // get database info about course fields
+    $db_info = penncourse_db_info('pc_course', array('field_pc_term'));
+
+    $sql = sprintf("SELECT DISTINCT     t.%s AS term
+                    FROM 			    {%s} t
+ 					ORDER BY 	        term DESC",
+        $db_info['field_pc_term']['column'],
+        $db_info['field_pc_term']['table']);
+
+    $results = db_query($sql, array());
+
+    $terms = array();
+    foreach ($results as $record) {
+        $terms[$record->term] = penncourse_translate_term($record->term);
+    }
+
+    return $terms;
+}
+
+function penncourse_get_all_subjects() {
+    $subject_code_array = explode(' ', variable_get('penncourse_subject_areas', ''));
+
+    $subjects = array();
+    foreach ($subject_code_array as $subject_code) {
+        $subjects[$subject_code] = penncourse_translate_subject($subject_code);
+    }
+
+    return $subjects;
+}

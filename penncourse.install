@@ -186,14 +186,14 @@ function penncourse_uninstall() {
         node_type_delete($content_type);
     }
 
+    // remove Course Theme taxonomy vocabulary
+    // load vocabularies to find the right ID
+    $vocabularies = taxonomy_vocabulary_get_names();
+    taxonomy_vocabulary_delete($vocabularies['course_theme']->vid);
+
     // purge all field information
     field_purge_batch(1000);
 
 
     variable_del('penncourse_subject_areas');
-
-    // delete cache_content
-    // content_clear_type_cache();
-
-    // delete Course Theme vocabulary
 }
