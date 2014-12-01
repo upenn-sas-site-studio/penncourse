@@ -31,6 +31,7 @@ function penncourse_build_course_node($nid = NULL, $values_array) {
         $node->language = LANGUAGE_NONE;
         // $node->uid = $user->uid;
         $node->uid = 1;
+        $node->name = 'administrator';
         $node->created = REQUEST_TIME;
         $node->status = 1;
         $node->promote = 0;
@@ -83,6 +84,7 @@ function penncourse_build_section_node($nid = NULL, $values_array) {
         $node->language = LANGUAGE_NONE;
         // $node->uid = $user->uid;
         $node->uid = 1;
+        $node->name = 'administrator';
         $node->created = REQUEST_TIME;
         $node->status = 1;
         $node->promote = 0;
@@ -111,6 +113,8 @@ function penncourse_build_section_node($nid = NULL, $values_array) {
     $node->field_pc_activity[$node->language][0]['value'] = $values_array['activity'];
     $node->field_pc_course_no[$node->language][0]['value'] = $values_array['course_no'];
     $node->field_pc_section_no[$node->language][0]['value'] = $values_array['section_no'];
+    $node->field_pc_course_int[$node->language][0]['value'] = $values_array['course_no'];
+    $node->field_pc_section_int[$node->language][0]['value'] = $values_array['section_no'];
     $node->field_pc_xlist[$node->language][0]['value'] = $values_array['xlist'];
     $node->field_pc_xlist[$node->language][0]['format'] = 'penncourse_format'; // we need to set formats too
     $node->field_pc_syllabus_url[$node->language][0]['url'] = $values_array['syllabus_url'];
@@ -119,6 +123,7 @@ function penncourse_build_section_node($nid = NULL, $values_array) {
     $node->field_pc_course[$node->language][0]['target_id'] = $values_array['course_nid'];
     $node->field_pc_course[$node->language][0]['target_type'] = 'node';
     $node->field_pc_level[$node->language][0]['value'] = $values_array['level'];
+    $node->field_pc_sec_reg_ctrl[$node->language][0]['value'] = $values_array['notes'];
 
     node_save($node);
     watchdog('penncourse cron', $action . '<br />' . l($node->title, 'node/' . $node->nid), array(), WATCHDOG_NOTICE);
@@ -444,6 +449,8 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
     															p.activity, 
     															p.syllabus_url, 
     															p.distribution_requirement, 
+    															p.section_reg_control,
+    															p.section_type_term,
     															p.status
                         FROM 			{warehousesync.pc_courses_temp} p
 												WHERE 		p.term = '%s' 
@@ -467,6 +474,8 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
     															p.activity, 
     															p.syllabus_url, 
     															p.distribution_requirement, 
+    															p.section_reg_control,
+    															p.section_type_term,
     															p.status
                         FROM 			warehousesync.pc_courses_temp p
 												WHERE 		p.term = :term
@@ -542,6 +551,7 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
             $section_info['status'] = $section_record->status;
             $section_info['course_id'] = $section_record->course_id;
             $section_info['course_nid'] = penncourse_find_course_nid($section_record->course_id, $section_record->term);
+            $section_info['notes'] = penncourse_build_notes($section_record->section_reg_control, $section_record->section_type_term);
             if ($section_record->course_no > 499) {
                 $section_info['level'] = 'graduate';
             }
@@ -560,6 +570,7 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
         // if a course record no longer exists for the corresponding pc_course node, delete the node
         foreach ($course_nodes as $key => $nid) {
             if (!isset($courses[$key])) {
+                watchdog('penncourse cron', 'deleting pc_course node ' . $nid, array(), WATCHDOG_NOTICE);
                 node_delete($nid);
             }
         }
@@ -567,6 +578,7 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
         // if a section record no longer exists for the corresponding pc_section node, delete the node
         foreach ($section_nodes as $key => $nid) {
             if (!isset($sections[$key])) {
+                watchdog('penncourse cron', 'deleting pc_section node ' . $nid, array(), WATCHDOG_NOTICE);
                 node_delete($nid);
             }
         }
@@ -586,7 +598,7 @@ function penncourse_is_summer_term() {
 /**
  * function penncourse_xml_to_array
  *
- * Copied over from LPSCPS module, not currently used
+ * Copied over from LPSCPS module
  * given a simple 3-element-deep XML structure (<root><record><param1 /><param2 /></record></root>), returns a keyed array
  * @param xml $xmlstring
  * @return array
@@ -809,9 +821,6 @@ function penncourse_db_info($content_type, $field_name_array) {
             $result[$field_name]['table'] = $key;
             $result[$field_name]['column'] = $value['value'];
         }
-        // $db_info = content_database_info(content_fields($field_name, $content_type));
-        // $result[$field_name]['table'] = $db_info['table'];
-        // $result[$field_name]['column'] = $db_info['columns']['value']['column'];
     }
     return $result;
 } // function penncourse_db_info
@@ -1078,4 +1087,61 @@ function penncourse_get_all_subjects() {
     }
 
     return $subjects;
+}
+
+/**
+ * parse $sec_reg_ctrl XML and translate control codes into text
+ *
+ * @param string $sec_reg_ctrl
+ */
+function penncourse_transform_sec_reg_ctrl($sec_reg_ctrl) {
+    $result_array = array();
+
+    if ($sec_reg_ctrl) {
+        $sec_reg_ctrl_array = penncourse_xml_to_array($sec_reg_ctrl);
+
+        foreach ($sec_reg_ctrl_array as $record) {
+            if ((substr($record['reg-control-desc'], 0, 5) != 'QUOTA') && ($record['reg-control-desc'] != 'CONTINUATION OF ABOVE QUOTA')) {
+                $result_array[] = $record['reg-control-desc'];
+            }
+        }
+    }
+
+    $result = implode('; ', $result_array);
+    return $result;
+}
+
+/**
+ * parse $sec_type XML and translate control codes into text
+ *
+ * @param string $sec_type
+ */
+function penncourse_transform_sec_type($sec_type) {
+    // watchdog('penncourse cron', 'function penncourse_transform_sec_type', array(), WATCHDOG_NOTICE);
+    $result_array = array();
+
+    if ($sec_type) {
+        // watchdog('penncourse cron', $sec_type, array(), WATCHDOG_NOTICE);
+        $sec_type_array = penncourse_xml_to_array($sec_type);
+
+        foreach ($sec_type_array as $record) {
+            // watchdog('penncourse cron', $record['section-type-desc'], array(), WATCHDOG_NOTICE);
+            if (isset($record['section-type-desc'])) {
+                $result_array[] = $record['section-type-desc'];
+            }
+        }
+    }
+
+    $result = implode('; ', $result_array);
+    return $result;
+}
+
+function penncourse_build_notes($sec_reg_ctrl, $sec_type) {
+    $result_array = array(
+        penncourse_transform_sec_reg_ctrl($sec_reg_ctrl),
+        penncourse_transform_sec_type($sec_type)
+    );
+
+    $result = implode('; ', $result_array);
+    return $result;
 }

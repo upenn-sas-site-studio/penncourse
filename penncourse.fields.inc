@@ -2735,4 +2735,180 @@ function penncourse_build_fields() {
         'deleted' => '0',
     ));
     // end field_pc_level
+
+    // ***********************
+    // field_pc_course_int
+    field_create_field(array(
+        'translatable' => '0',
+        'entity_types' => array(),
+        'settings' => array(),
+        'storage' => array(
+            'type' => 'field_sql_storage',
+            'settings' => array(),
+            'module' => 'field_sql_storage',
+            'active' => '1',
+            'details' => array(
+                'sql' => array(
+                    'FIELD_LOAD_CURRENT' => array(
+                        'field_data_field_pc_course_int' => array(
+                            'value' => 'field_pc_course_int_value',
+                        ),
+                    ),
+                    'FIELD_LOAD_REVISION' => array(
+                        'field_revision_field_pc_course_int' => array(
+                            'value' => 'field_pc_course_int_value',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'foreign keys' => array(),
+        'indexes' => array(),
+        'field_name' => 'field_pc_course_int',
+        'type' => 'number_integer',
+        'module' => 'number',
+        'active' => '1',
+        'locked' => '0',
+        'cardinality' => '1',
+        'deleted' => '0',
+        'columns' => array(
+            'value' => array(
+                'type' => 'int',
+                'not null' => FALSE,
+            ),
+        ),
+        'bundles' => array(
+            'node' => array(
+                'pc_section',
+            ),
+        ),
+    ));
+    // instance pc_section
+    field_create_instance(array(
+        'label' => 'Course Number Integer',
+        'widget' => array(
+            'weight' => '19',
+            'type' => 'number',
+            'module' => 'number',
+            'active' => 0,
+            'settings' => array(),
+        ),
+        'settings' => array(
+            'min' => '',
+            'max' => '',
+            'prefix' => '',
+            'suffix' => '',
+            'user_register_form' => FALSE,
+        ),
+        'display' => array(
+            'default' => array(
+                'label' => 'hidden',
+                'type' => 'hidden',
+                'weight' => '18',
+                'settings' => array(),
+            ),
+            'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+            ),
+        ),
+        'required' => 1,
+        'description' => '',
+        'default_value' => NULL,
+        'field_name' => 'field_pc_course_int',
+        'entity_type' => 'node',
+        'bundle' => 'pc_section',
+        'deleted' => '0',
+    ));
+    // end field_pc_course_int
+
+    // ************************
+    // field_pc_section_int
+    field_create_field(array(
+        'translatable' => '0',
+        'entity_types' => array(),
+        'settings' => array(),
+        'storage' => array(
+            'type' => 'field_sql_storage',
+            'settings' => array(),
+            'module' => 'field_sql_storage',
+            'active' => '1',
+            'details' => array(
+                'sql' => array(
+                    'FIELD_LOAD_CURRENT' => array(
+                        'field_data_field_pc_section_int' => array(
+                            'value' => 'field_pc_section_int_value',
+                        ),
+                    ),
+                    'FIELD_LOAD_REVISION' => array(
+                        'field_revision_field_pc_section_int' => array(
+                            'value' => 'field_pc_section_int_value',
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        'foreign keys' => array(),
+        'indexes' => array(),
+        'field_name' => 'field_pc_section_int',
+        'type' => 'number_integer',
+        'module' => 'number',
+        'active' => '1',
+        'locked' => '0',
+        'cardinality' => '1',
+        'deleted' => '0',
+        'columns' => array(
+            'value' => array(
+                'type' => 'int',
+                'not null' => FALSE,
+            ),
+        ),
+        'bundles' => array(
+            'node' => array(
+                'pc_section',
+            ),
+        ),
+    ));
+    // instance pc_section
+    field_create_instance(array(
+        'label' => 'Section Number Integer',
+        'widget' => array(
+            'weight' => '20',
+            'type' => 'number',
+            'module' => 'number',
+            'active' => 0,
+            'settings' => array(),
+        ),
+        'settings' => array(
+            'min' => '',
+            'max' => '',
+            'prefix' => '',
+            'suffix' => '',
+            'user_register_form' => FALSE,
+        ),
+        'display' => array(
+            'default' => array(
+                'label' => 'hidden',
+                'type' => 'hidden',
+                'weight' => '19',
+                'settings' => array(),
+            ),
+            'teaser' => array(
+                'type' => 'hidden',
+                'label' => 'above',
+                'settings' => array(),
+                'weight' => 0,
+            ),
+        ),
+        'required' => 1,
+        'description' => '',
+        'default_value' => NULL,
+        'field_name' => 'field_pc_section_int',
+        'entity_type' => 'node',
+        'bundle' => 'pc_section',
+        'deleted' => '0',
+    ));
+    // end field_pc_section_int
 }

@@ -238,6 +238,24 @@ function penncourse_views_default_views() {
     $handler->display->display_options['filters']['field_pc_activity_value']['field'] = 'field_pc_activity_value';
     $handler->display->display_options['filters']['field_pc_activity_value']['operator'] = '!=';
     $handler->display->display_options['filters']['field_pc_activity_value']['value'] = 'REC';
+    /* Filter criterion: Content: Activity (field_pc_activity) */
+    $handler->display->display_options['filters']['field_pc_activity_value_1']['id'] = 'field_pc_activity_value_1';
+    $handler->display->display_options['filters']['field_pc_activity_value_1']['table'] = 'field_data_field_pc_activity';
+    $handler->display->display_options['filters']['field_pc_activity_value_1']['field'] = 'field_pc_activity_value';
+    $handler->display->display_options['filters']['field_pc_activity_value_1']['operator'] = '!=';
+    $handler->display->display_options['filters']['field_pc_activity_value_1']['value'] = 'DIS';
+    /* Filter criterion: Content: Activity (field_pc_activity) */
+    $handler->display->display_options['filters']['field_pc_activity_value_2']['id'] = 'field_pc_activity_value_2';
+    $handler->display->display_options['filters']['field_pc_activity_value_2']['table'] = 'field_data_field_pc_activity';
+    $handler->display->display_options['filters']['field_pc_activity_value_2']['field'] = 'field_pc_activity_value';
+    $handler->display->display_options['filters']['field_pc_activity_value_2']['operator'] = '!=';
+    $handler->display->display_options['filters']['field_pc_activity_value_2']['value'] = 'IND';
+    /* Filter criterion: Content: Activity (field_pc_activity) */
+    $handler->display->display_options['filters']['field_pc_activity_value_3']['id'] = 'field_pc_activity_value_3';
+    $handler->display->display_options['filters']['field_pc_activity_value_3']['table'] = 'field_data_field_pc_activity';
+    $handler->display->display_options['filters']['field_pc_activity_value_3']['field'] = 'field_pc_activity_value';
+    $handler->display->display_options['filters']['field_pc_activity_value_3']['operator'] = '!=';
+    $handler->display->display_options['filters']['field_pc_activity_value_3']['value'] = 'MST';
     $views[$view->name] = $view;
 
     // At the end, return array of default views.

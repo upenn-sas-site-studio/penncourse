@@ -113,7 +113,7 @@ function penncourse_install() {
 
         // add peristant variables that control settings
         variable_set('additional_settings__active_tab_' . $name, 'edit-menu');
-        variable_set('node_preview_' . $name, 2);
+        variable_set('node_preview_' . $name, 0);
         variable_set('node_options_' . $name, array(0 => 'status'));
         variable_set('comment_default_mode_' . $name, 1);
         variable_set('node_submitted_' . $name, 0);

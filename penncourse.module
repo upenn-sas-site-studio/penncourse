@@ -6,6 +6,21 @@
  * This module supports display of course data from the Penn Data Warehouse
  */
 
+/***************************
+ * Commenting out this function but keeping it for future reference
+ * displays structure for field definitions, useful for building install functions
+ * for content types
+
+function penncourse_init() {
+    $info_config = field_info_field('field_pc_section_int');
+    $info_instance = field_info_instance('node', 'field_pc_section_int', 'pc_section');
+    unset($info_config['id']);
+    unset($info_instance['id'], $info_instance['field_id']);
+    include_once DRUPAL_ROOT . '/includes/utility.inc';
+    $output = "field_create_field(" . drupal_var_export($info_config) . ");\n";
+    $output .= "field_create_instance(" . drupal_var_export($info_instance) . ");";
+    drupal_set_message("<textarea rows=30 style=\"width: 100%;\">" . $output . '</textarea>');
+} */
 
 /**
 * Display help and module information
