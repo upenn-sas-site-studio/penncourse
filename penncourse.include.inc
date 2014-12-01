@@ -1137,11 +1137,24 @@ function penncourse_transform_sec_type($sec_type) {
 }
 
 function penncourse_build_notes($sec_reg_ctrl, $sec_type) {
-    $result_array = array(
-        penncourse_transform_sec_reg_ctrl($sec_reg_ctrl),
-        penncourse_transform_sec_type($sec_type)
-    );
+    $reg_ctrl_string = penncourse_transform_sec_reg_ctrl($sec_reg_ctrl);
+    $type_string = penncourse_transform_sec_type($sec_type);
 
-    $result = implode('; ', $result_array);
+    if ($reg_ctrl_string) {
+        if ($reg_ctrl_string && $type_string) {
+            $result = $reg_ctrl_string . '; ' . $type_string;
+        }
+        else {
+            $result = $reg_ctrl_string;
+        }
+    }
+    else {
+        if ($type_string) {
+            $result = $type_string;
+        }
+        else {
+            $result = NULL;
+        }
+    }
     return $result;
 }
