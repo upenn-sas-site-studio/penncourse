@@ -17,7 +17,6 @@ function penncourse_course_list_term($term, $subj_code = 'all', $level = 'all') 
     // $node = node_load(1289);
     // dpm($node);
     module_load_include('inc', 'penncourse', 'penncourse.include');
-    drupal_add_css(drupal_get_path('module', 'penncourse') . '/penncourse.css');
     drupal_add_js(drupal_get_path('module', 'penncourse') . '/js/penncourse_course_table.js');
     $breadcrumb = array(l(t('Home'), NULL));
 
@@ -58,7 +57,6 @@ function penncourse_course_list_term($term, $subj_code = 'all', $level = 'all') 
  */
 function penncourse_course_detail($term, $course_id) {
     module_load_include('inc', 'penncourse', 'penncourse.include');
-    drupal_add_css(drupal_get_path('module', 'penncourse') . '/penncourse.css');
     $node = penncourse_load_course_node($course_id, $term);
 
     drupal_set_title($node->title);
