@@ -741,7 +741,7 @@ function penncourse_transform_instructors($xmlstring) {
         // $xhtml .= '<ul class="penncourse-course-instructors">';
         foreach ($instructors->instructor as $instructor) {
             if ($instructor->lastname) {
-                $xhtml .= '<span class="penncourse-course-instructor" id="' . $instructor->pennkey . '">' . $instructor->lastname . ', ' . $instructor->firstname . '</span><br />';
+                $xhtml .= '<span class="penncourse-course-instructor" data-pennkey="' . $instructor->pennkey . '">' . $instructor->lastname . ', ' . $instructor->firstname . '</span><br />';
             }
         }
         // $xhtml .= '</ul>';

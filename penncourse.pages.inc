@@ -22,7 +22,7 @@ function penncourse_course_list_term($term, $subj_code = 'all', $level = 'all') 
 
     // if term is null, set to current term
     if (!$term) {
-        $term = penncourse_current_term_no_summer();
+        $term = penncourse_load_final_term();
     }
 
     // build title string and extra breadcrumb, if needed
