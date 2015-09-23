@@ -1,7 +1,6 @@
-; Id: penncourse.module,v 1.0 2009/10/10 11:36:00 rickward@sas.upenn.edu Exp $
 name = PennCourse
 description = "Displays course information from the Penn Data Warehouse. Requires separate configuration of data synchronization tasks."
-package = Custom
+package = Penn
 version = "6.x-1.0"
 core = "6.x"
 dependencies[] = views
@@ -10,8 +9,3 @@ dependencies[] = content_copy
 dependencies[] = link
 dependencies[] = nodereference
 dependencies[] = taxonomy
-
-; Information added by drupal.org packaging script on 2007-01-15
-version = "6.x-1.0"
-core = "6.x"
-project = "custom"

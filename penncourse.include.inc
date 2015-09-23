@@ -83,6 +83,7 @@ function penncourse_build_section_node($nid = NULL, $values_array)
     } else {
         $node->field_pc_meeting[0]['value'] = $values_array['meeting'];
     }
+    $node->field_pc_title[0]['value'] = $values_array['title'];
     $node->field_pc_location[0]['value'] = $values_array['location'];
     $node->field_pc_section_id[0]['value'] = $values_array['section_id'];
     $node->field_pc_course[0]['nid'] = $values_array['course'];
@@ -390,8 +391,9 @@ function penncourse_load_courses_by_subj($term, $subj_area)
         $sql = sprintf("SELECT 	p.subject_area,
     															p.course_id, 
     															p.course_no, 
-    															p.course_title, 
-    															p.course_instructors, 
+    															p.course_inventory_title,
+    															p.course_title,
+    															p.course_instructors,
     															p.section_id, 
     															p.section_no, 
     															p.course_desc, 
@@ -414,7 +416,8 @@ function penncourse_load_courses_by_subj($term, $subj_area)
         $results = db_query("SELECT 	p.subject_area,
     															p.course_id, 
     															p.course_no, 
-    															p.course_title, 
+    															p.course_inventory_title,
+    															p.course_title,
     															p.course_instructors, 
     															p.section_id, 
     															p.section_no, 
@@ -458,7 +461,7 @@ function penncourse_load_courses_by_subj($term, $subj_area)
         // loop through $courses array and update or create pc_course nodes as needed
         foreach ($courses as $key => $course_record) {
             $course_info = array();
-            $course_info['title'] = $course_record->course_title;
+            $course_info['title'] = $course_record->course_inventory_title;
             $course_info['descr'] = penncourse_transform_description($course_record->course_desc);
             $course_info['syllabus_url'] = $course_record->syllabus_url;
             $course_info['course_id'] = $course_record->course_id;
@@ -634,7 +637,9 @@ function penncourse_transform_sec_reg_ctrl($sec_reg_ctrl) {
         $sec_reg_ctrl_array = penncourse_xml_to_array($sec_reg_ctrl);
 
         foreach ($sec_reg_ctrl_array as $record) {
-            $result_array[] = $record['reg-control-desc'];
+            if ((substr($record['reg-control-desc'], 0, 5) != 'QUOTA') && ($record['reg-control-desc'] != 'CONTINUATION OF ABOVE QUOTA')) {
+                $result_array[] = $record['reg-control-desc'];
+            }
         }
     }
 
