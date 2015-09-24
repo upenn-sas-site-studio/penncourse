@@ -599,6 +599,9 @@ function penncourse_views_default_views() {
     $handler->override_option('cache', array(
         'type' => 'none',
     ));
+    $handler->override_option('footer', 'Course location information is provided as a convenience. Please refer to Penn In Touch for the most current course meeting information.');
+    $handler->override_option('footer_format', '1');
+    $handler->override_option('footer_empty', 0);
     $handler->override_option('items_per_page', 0);
     $handler = $view->new_display('attachment', 'Attachment', 'attachment_1');
     $handler->override_option('fields', array(
@@ -782,6 +785,7 @@ function penncourse_views_default_views() {
             ),
         ),
     ));
+    $handler->override_option('footer', '');
     $handler->override_option('attachment_position', 'before');
     $handler->override_option('inherit_arguments', TRUE);
     $handler->override_option('inherit_exposed_filters', FALSE);
@@ -802,10 +806,9 @@ function penncourse_views_default_views() {
     $view->name = 'pc_section_table';
     $view->description = 'A semi-detailed table view of course sections.';
     $view->tag = 'penncourse';
-    $view->view_php = '';
     $view->base_table = 'node';
-    $view->is_cacheable = FALSE;
-    $view->api_version = 2;
+    $view->core = 0;
+    $view->api_version = '2';
     $view->disabled = FALSE; /* Edit this to true to make a default view disabled initially */
     $handler = $view->new_display('default', 'Defaults', 'default');
     $handler->override_option('fields', array(
@@ -1176,10 +1179,10 @@ function penncourse_views_default_views() {
             'field' => 'field_pc_term_value',
             'validate_user_argument_type' => 'uid',
             'validate_user_roles' => array(
-                '2' => 0,
-                '3' => 0,
-                '4' => 0,
-                '5' => 0,
+                2 => 0,
+                3 => 0,
+                4 => 0,
+                5 => 0,
             ),
             'relationship' => 'none',
             'default_options_div_prefix' => '',
@@ -1198,7 +1201,7 @@ function penncourse_views_default_views() {
             'validate_argument_node_access' => 0,
             'validate_argument_nid_type' => 'nid',
             'validate_argument_vocabulary' => array(
-                '1' => 0,
+                1 => 0,
             ),
             'validate_argument_type' => 'tid',
             'validate_argument_transform' => 0,
@@ -1227,10 +1230,10 @@ function penncourse_views_default_views() {
             'field' => 'field_pc_subj_area_value',
             'validate_user_argument_type' => 'uid',
             'validate_user_roles' => array(
-                '2' => 0,
-                '3' => 0,
-                '4' => 0,
-                '5' => 0,
+                2 => 0,
+                3 => 0,
+                4 => 0,
+                5 => 0,
             ),
             'relationship' => 'none',
             'default_options_div_prefix' => '',
@@ -1249,7 +1252,7 @@ function penncourse_views_default_views() {
             'validate_argument_node_access' => 0,
             'validate_argument_nid_type' => 'nid',
             'validate_argument_vocabulary' => array(
-                '1' => 0,
+                1 => 0,
             ),
             'validate_argument_type' => 'tid',
             'validate_argument_transform' => 0,
@@ -1295,6 +1298,9 @@ function penncourse_views_default_views() {
     $handler->override_option('cache', array(
         'type' => 'none',
     ));
+    $handler->override_option('header', 'Course location information is provided as a convenience. Please refer to Penn In Touch for the most current course meeting information.');
+    $handler->override_option('header_format', '1');
+    $handler->override_option('header_empty', 0);
     $handler->override_option('items_per_page', 0);
     $handler->override_option('style_plugin', 'table');
     $handler->override_option('style_options', array(
