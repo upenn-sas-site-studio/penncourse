@@ -2,356 +2,261 @@
 // penncourse.install
 
 /**
-* Programmatically create CCK fields and types using the content copy module
-* @param $type string
-* content type to create, defaults to new type, if type exists, only fields will be added
-* @param $macro array
-* exported array from content types -> export. If file is not specified, macro will be used
-* @param $file string
-* path to file containing content copy exported macro data structure. no escaping needed.
-*/
+ * Programmatically create CCK fields and types using the content copy module
+ * @param $type string
+ * content type to create, defaults to new type, if type exists, only fields will be added
+ * @param $macro array
+ * exported array from content types -> export. If file is not specified, macro will be used
+ * @param $file string
+ * path to file containing content copy exported macro data structure. no escaping needed.
+ */
 function base_create_content($type = '<create>', $macro = '', $file = '') {
-  if(!module_exists("content_copy")){
-    drupal_set_message('Programmatically creating CCK fields requires the Content Copy module. Exiting.');
-    return;
-  }
-  
-  // get macro import data, prefer file first
-  // assign $file content to $macro, if file is available
-  if($file){
-    if(file_exists($file)){
-      $macro = file_get_contents($file);
-    }else{
-      drupal_set_message('Unable to read input file for import. Exiting.');
-      return;
+    if(!module_exists("content_copy")){
+        drupal_set_message('Programmatically creating CCK fields requires the Content Copy module. Exiting.');
+        return;
     }
-  }
 
-  // build form state
-  $form_state = array(
-    'values' => array(
-      'type_name' => $type,
-      'macro' => $macro,
-    ),
-  );
+    // get macro import data, prefer file first
+    // assign $file content to $macro, if file is available
+    if($file){
+        if(file_exists($file)){
+            $macro = file_get_contents($file);
+        }else{
+            drupal_set_message('Unable to read input file for import. Exiting.');
+            return;
+        }
+    }
 
-  //import content by executing content copy import form and passing macro
-  drupal_execute("content_copy_import_form", $form_state);
-  content_clear_type_cache();
+    // build form state
+    $form_state = array(
+        'values' => array(
+            'type_name' => $type,
+            'macro' => $macro,
+        ),
+    );
+
+    //import content by executing content copy import form and passing macro
+    drupal_execute("content_copy_import_form", $form_state);
+    content_clear_type_cache();
 }
 
 
 function penncourse_install () {
 
-  // create subject area content type
-  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_subject_area_desc.cck');
+    // create subject area content type
+    base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_subject_area_desc.cck');
 
-  // create course content type
-  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_course.cck');
+    // create course content type
+    base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_course.cck');
 
-  // create section content type
-  base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_section.cck');
-  
-  // Create the Course Theme vocabulary
-  $vocabulary = array(
-    'name' => t('Course Theme'),
-    'multiple' => 1,
-    'description' => 'Used to group courses by theme for the Penncourse module. Not used by all departments',
-    'required' => 0,
-    'hierarchy' => 1,
-    'relations' => 0,
-    'module' => 'penncourse',
-    'weight' => 0,
-    'nodes' => array('pc_course' => 1),
-  );
-  
-  taxonomy_save_vocabulary($vocabulary);
+    // create section content type
+    base_create_content($type = '<create>', $macro = '', $file = drupal_get_path('module','penncourse').'/cck/pc_section.cck');
+
+    // Create the Course Theme vocabulary
+    $vocabulary = array(
+        'name' => t('Course Theme'),
+        'multiple' => 1,
+        'description' => 'Used to group courses by theme for the Penncourse module. Not used by all departments',
+        'required' => 0,
+        'hierarchy' => 1,
+        'relations' => 0,
+        'module' => 'penncourse',
+        'weight' => 0,
+        'nodes' => array('pc_course' => 1),
+    );
+
+    taxonomy_save_vocabulary($vocabulary);
 }
 
 /**
- * 
- * 
+ * Add distribution requirement field
+ *
  */
 function penncourse_update_6101() {
-  module_load_include('inc', 'content', 'includes/content.crud');
-  // adding the distribution requirement field to the pc_course content type
-  $distr_req_field = array (
-      'field_name' => 'field_pc_dist_req',
-      'type_name' => 'pc_course',
-      'display_settings' => 
-      array (
-        'label' => 
-        array (
-          'format' => 'above',
-          'exclude' => 0,
-        ),
-        'teaser' => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        'full' => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        4 => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        2 => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        3 => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-        'token' => 
-        array (
-          'format' => 'default',
-          'exclude' => 0,
-        ),
-      ),
-      'widget_active' => '1',
-      'type' => 'text',
-      'required' => '0',
-      'multiple' => '0',
-      'db_storage' => '1',
-      'module' => 'text',
-      'active' => '1',
-      'locked' => '0',
-      'columns' => 
-      array (
-        'value' => 
-        array (
-          'type' => 'text',
-          'size' => 'big',
-          'not null' => false,
-          'sortable' => true,
-          'views' => true,
-        ),
-      ),
-      'text_processing' => '0',
-      'max_length' => '',
-      'allowed_values' => '',
-      'allowed_values_php' => '',
-      'widget' => 
-      array (
-        'rows' => 5,
-        'size' => '60',
-        'default_value' => 
-        array (
-          0 => 
-          array (
-            'value' => '',
-            '_error_element' => 'default_value_widget][field_pc_dist_req][0][value',
-          ),
-        ),
-        'default_value_php' => NULL,
-        'label' => 'Fulfills',
-        'weight' => '4',
-        'description' => '',
-        'type' => 'text_textfield',
+    // adding the distribution requirement field to the pc_course content type
+    $distr_req_field = array (
+        'field_name' => 'field_pc_dist_req',
+        'type_name' => 'pc_course',
+        'display_settings' =>
+            array (
+                'label' =>
+                    array (
+                        'format' => 'above',
+                        'exclude' => 0,
+                    ),
+                'teaser' =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                'full' =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                4 =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                2 =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                3 =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                'token' =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+            ),
+        'widget_active' => '1',
+        'type' => 'text',
+        'required' => '0',
+        'multiple' => '0',
+        'db_storage' => '1',
         'module' => 'text',
-      ),
+        'active' => '1',
+        'locked' => '0',
+        'columns' =>
+            array (
+                'value' =>
+                    array (
+                        'type' => 'text',
+                        'size' => 'big',
+                        'not null' => false,
+                        'sortable' => true,
+                        'views' => true,
+                    ),
+            ),
+        'text_processing' => '0',
+        'max_length' => '',
+        'allowed_values' => '',
+        'allowed_values_php' => '',
+        'widget' =>
+            array (
+                'rows' => 5,
+                'size' => '60',
+                'default_value' =>
+                    array (
+                        0 =>
+                            array (
+                                'value' => '',
+                                '_error_element' => 'default_value_widget][field_pc_dist_req][0][value',
+                            ),
+                    ),
+                'default_value_php' => NULL,
+                'label' => 'Fulfills',
+                'weight' => '4',
+                'description' => '',
+                'type' => 'text_textfield',
+                'module' => 'text',
+            ),
     );
-    
-  // add the field
-  content_field_instance_create($distr_req_field);
+
+    module_load_include('inc', 'content', 'includes/content.crud');
+    // add the field
+    content_field_instance_create($distr_req_field);
 }
 
+/**
+ * Add the title text only field to pc_section
+ */
 function penncourse_update_6102() {
-  module_load_include('inc', 'content', 'includes/content.crud');
-  // adding the section registration control field to the pc_section content type
-  $sec_reg_ctrl_field = array (
-                          'field_name' => 'field_pc_sec_reg_ctrl',
-                          'type_name' => 'pc_section',
-                          'display_settings' =>
-                          array (
-                            'label' =>
+    // adding the title text only field to pc_section type
+    $pc_title_field = array (
+        'field_name' => 'field_pc_title',
+        'type_name' => 'pc_section',
+        'display_settings' =>
+            array (
+                'label' =>
+                    array (
+                        'format' => 'above',
+                        'exclude' => 0,
+                    ),
+                'teaser' =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                'full' =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                4 =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                2 =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                3 =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+                'token' =>
+                    array (
+                        'format' => 'default',
+                        'exclude' => 0,
+                    ),
+            ),
+        'widget_active' => '1',
+        'type' => 'text',
+        'required' => '0',
+        'multiple' => '0',
+        'db_storage' => '0',
+        'module' => 'text',
+        'active' => '1',
+        'locked' => '0',
+        'columns' =>
+            array (
+                'value' =>
+                    array (
+                        'type' => 'text',
+                        'size' => 'big',
+                        'not null' => false,
+                        'sortable' => true,
+                        'views' => true,
+                    ),
+            ),
+        'text_processing' => '0',
+        'max_length' => '',
+        'allowed_values' => '',
+        'allowed_values_php' => '',
+        'widget' =>
+            array (
+                'rows' => 5,
+                'size' => '60',
+                'default_value' =>
+                    array (
+                        0 =>
                             array (
-                              'format' => 'above',
-                              'exclude' => 0,
-                            ),
-                            'teaser' =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            'full' =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            4 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            2 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            3 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            5 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            'token' =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                          ),
-                          'widget_active' => '1',
-                          'type' => 'text',
-                          'required' => '0',
-                          'multiple' => '0',
-                          'db_storage' => '1',
-                          'module' => 'text',
-                          'active' => '1',
-                          'locked' => '0',
-                          'columns' =>
-                          array (
-                            'value' =>
-                            array (
-                              'type' => 'text',
-                              'size' => 'big',
-                              'not null' => false,
-                              'sortable' => true,
-                              'views' => true,
-                            ),
-                          ),
-                          'text_processing' => '0',
-                          'max_length' => '',
-                          'allowed_values' => '',
-                          'allowed_values_php' => '',
-                          'widget' =>
-                          array (
-                            'rows' => 5,
-                            'size' => '60',
-                            'default_value' =>
-                            array (
-                              0 =>
-                              array (
                                 'value' => '',
-                                '_error_element' => 'default_value_widget][field_pc_sec_reg_ctrl][0][value',
-                              ),
+                                '_error_element' => 'default_value_widget][field_pc_title][0][value',
                             ),
-                            'default_value_php' => NULL,
-                            'label' => 'Section Reg Control',
-                            'weight' => '10',
-                            'description' => '',
-                            'type' => 'text_textfield',
-                            'module' => 'text',
-                          ),
-                        );
+                    ),
+                'default_value_php' => NULL,
+                'label' => 'Title (text only)',
+                'weight' => '-4',
+                'description' => 'The node title will include the course ID as a prefix (eg, "ANTH001 - Introduction to Anthropology"). This field should contain only the text of the course title.',
+                'type' => 'text_textfield',
+                'module' => 'text',
+            ),
+    );
 
-  // add the field
-  content_field_instance_create($sec_reg_ctrl_field);
-
-  // add the section type field
-  $section_type_field = array (
-                          'field_name' => 'field_pc_sec_type',
-                          'type_name' => 'pc_section',
-                          'display_settings' =>
-                          array (
-                            'label' =>
-                            array (
-                              'format' => 'above',
-                              'exclude' => 0,
-                            ),
-                            'teaser' =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            'full' =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            4 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            2 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            3 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            5 =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                            'token' =>
-                            array (
-                              'format' => 'default',
-                              'exclude' => 0,
-                            ),
-                          ),
-                          'widget_active' => '1',
-                          'type' => 'text',
-                          'required' => '0',
-                          'multiple' => '0',
-                          'db_storage' => '1',
-                          'module' => 'text',
-                          'active' => '1',
-                          'locked' => '0',
-                          'columns' =>
-                          array (
-                            'value' =>
-                            array (
-                              'type' => 'text',
-                              'size' => 'big',
-                              'not null' => false,
-                              'sortable' => true,
-                              'views' => true,
-                            ),
-                          ),
-                          'text_processing' => '0',
-                          'max_length' => '',
-                          'allowed_values' => '',
-                          'allowed_values_php' => '',
-                          'widget' =>
-                          array (
-                            'rows' => 5,
-                            'size' => '60',
-                            'default_value' =>
-                            array (
-                              0 =>
-                              array (
-                                'value' => '',
-                                '_error_element' => 'default_value_widget][field_pc_sec_type][0][value',
-                              ),
-                            ),
-                            'default_value_php' => NULL,
-                            'label' => 'Section Type',
-                            'weight' => '11',
-                            'description' => '',
-                            'type' => 'text_textfield',
-                            'module' => 'text',
-                          ),
-                        );
-
-  content_field_instance_create($sec_type_field);
+    module_load_include('inc', 'content', 'includes/content.crud');
+    // add the field
+    content_field_instance_create($pc_title_field);
 }
 
 function penncourse_uninstall() {
@@ -383,7 +288,7 @@ function penncourse_uninstall() {
                 $action = db_query($sql);
             }
         }
-    
+
         // delete $content_type records from node_revisions
         $sql = sprintf("DELETE FROM node_revisions WHERE nid IN (SELECT nid FROM node WHERE type = '%s')",$content_type);
         $result = db_query($sql);
@@ -396,7 +301,7 @@ function penncourse_uninstall() {
         $sql = sprintf("DELETE FROM node_type WHERE type = '%s'",$content_type);
         $result = db_query($sql);
     }
-  
+
     variable_del('penncourse_subject_areas');
 
     // delete cache_content
