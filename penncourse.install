@@ -68,6 +68,41 @@ function penncourse_install () {
     taxonomy_save_vocabulary($vocabulary);
 }
 
+function _penncourse_create_user() {
+    // create and save new user who will author content associated with this module
+    $new_user = array(
+        'name' => 'penncourse_user',
+        'mail' => 'penncourse_user@sas.upenn.edu',
+        'status' => 1,
+        'pass' => _penncourse_rand_password(),
+    );
+    $penncourse_user = user_save(NULL, $new_user);
+}
+
+/**
+ * function _sas_event_calendar_rand_password($length = 16)
+ *
+ * generates a random password to save as a drupal native password
+ */
+function _penncourse_rand_password($length = 16) {
+    $vowels = 'aeuyAEUY';
+    $consonants = 'bdghjmnpqrstvzBDGHJLMNPQRSTVWXZ23456789@#$%';
+
+    $password = '';
+    $alt = time() % 2;
+    for ($i = 0; $i < $length; $i++) {
+        if ($alt == 1) {
+            $password .= $consonants[(rand() % strlen($consonants))];
+            $alt = 0;
+        }
+        else {
+            $password .= $vowels[(rand() % strlen($vowels))];
+            $alt = 1;
+        }
+    }
+    return $password;
+}
+
 /**
  * Add distribution requirement field
  *
@@ -258,6 +293,27 @@ function penncourse_update_6102() {
     // add the field
     content_field_instance_create($pc_title_field);
 }
+
+/**
+ * Add new dedicated penncourse_user
+ */
+function penncourse_update_6103() {
+    _penncourse_create_user();
+}
+
+
+/**
+ * Convert all legacy penncourse content to use the new penncourse_user
+ */
+function penncourse_update_6104() {
+    $penncourse_user = user_load(array('name' => 'penncourse_user'));
+
+    if ($penncourse_user) {
+        $sql = sprintf("UPDATE {node} SET UID = %d WHERE type = 'pc_section' OR type = 'pc_course'", $penncourse_user->uid);
+        update_sql($sql);
+    }
+}
+
 
 function penncourse_uninstall() {
 

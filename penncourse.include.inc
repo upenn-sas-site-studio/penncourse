@@ -11,9 +11,12 @@
 function penncourse_build_course_node($nid = NULL, $values_array)
 {
     global $user;
+    $current_uid = $user->uid;
+    // we want the author of this content to be a dedicated user account, sas_event_calendar
+    $user = user_load(array('name' => 'penncourse_user'));
     module_load_include('inc', 'node', 'node.pages');
 
-    pcpm($values_array);
+    // pcpm($values_array);
 
     if ($nid) {
         $action = 'updating course node: ' . $nid . '[nid] ' . $values_array['course_id'] . '[course_id]';
@@ -24,7 +27,8 @@ function penncourse_build_course_node($nid = NULL, $values_array)
         $node->type = 'pc_course';
         node_object_prepare($node);
         $node->uid = $user->uid;
-        $node->created = time();
+        $node->name = 'penncourse_user';
+        $node->created = REQUEST_TIME;
         $node->status = 1;
     }
 
@@ -40,10 +44,13 @@ function penncourse_build_course_node($nid = NULL, $values_array)
     $node->field_pc_status[0]['value'] = $values_array['status'];
 
     node_save($node);
-    pcpm($node);
+    // pcpm($node);
     watchdog('penncourse cron', $action . '<br />' . l($node->title, 'node/' . $node->nid), array(), WATCHDOG_NOTICE);
     $nid = $node->nid;
     unset($node);
+
+    // reload our original user
+    $user = user_load($current_uid);
 
     return $nid;
 } // function penncourse_build_course_node
@@ -58,9 +65,12 @@ function penncourse_build_course_node($nid = NULL, $values_array)
 function penncourse_build_section_node($nid = NULL, $values_array)
 {
     global $user;
+    $current_uid = $user->uid;
+    // we want the author of this content to be a dedicated user account, sas_event_calendar
+    $user = user_load(array('name' => 'penncourse_user'));
     module_load_include('inc', 'node', 'node.pages');
 
-    pcpm($values_array);
+    // pcpm($values_array);
 
     if ($nid) {
         $action = 'updating section node: ' . $nid . '[nid] ' . $values_array['section_id'] . '[section_id]';
@@ -71,7 +81,8 @@ function penncourse_build_section_node($nid = NULL, $values_array)
         $node->type = 'pc_section';
         node_object_prepare($node);
         $node->uid = $user->uid;
-        $node->created = time();
+        $node->name = 'penncourse_user';
+        $node->created = REQUEST_TIME;
         $node->status = 1;
     }
 
@@ -104,6 +115,9 @@ function penncourse_build_section_node($nid = NULL, $values_array)
     watchdog('penncourse cron', $action . '<br />' . l($node->title, 'node/' . $node->nid), array(), WATCHDOG_NOTICE);
     $nid = $node->nid;
     unset($node);
+
+    // reload our original user
+    $user = user_load($current_uid);
 
     return $nid;
 } // function penncourse_build_section_node
@@ -479,13 +493,20 @@ function penncourse_load_courses_by_subj($term, $subj_area)
         }
 
         // loop through $sections array and update or create pc_section nodes as needed
+        $current_term = penncourse_current_term();
         foreach ($sections as $key => $section_record) {
             $section_info = array();
             $section_info['title'] = $section_record->course_title;
             // $section_info['descr'] = penncourse_transform_description($section_record->course_desc); this field is maintained locally on the Drupal site
             $section_info['instructors'] = penncourse_transform_instructors($section_record->course_instructors);
+            // only publish meeting information for the current term or earlier
             $section_info['meeting'] = penncourse_transform_meetings($section_record->course_meeting);
-            $section_info['location'] = penncourse_transform_location($section_record->course_meeting);
+            if ($section_record->term <= $current_term) {
+                $section_info['location'] = penncourse_transform_location($section_record->course_meeting);
+            }
+            else {
+                $section_info['location'] = '';
+            }
             $section_info['section_id'] = $section_record->section_id;
             $section_info['course'] = $course_nodes[trim($section_record->field_pc_term) . '-' . trim($section_record->field_pc_course_id)];
             $section_info['subj_area'] = $section_record->subject_area;
@@ -508,6 +529,11 @@ function penncourse_load_courses_by_subj($term, $subj_area)
             }
         }
 
+        global $user;
+        $current_uid = $user->uid;
+        // we want the author of this content to be a dedicated user account, sas_event_calendar
+        $user = user_load(array('name' => 'penncourse_user'));
+
         // if a course record no longer exists for the corresponding pc_course node, delete the node
         foreach ($course_nodes as $key => $nid) {
             if (!isset($courses[$key])) {
@@ -521,6 +547,8 @@ function penncourse_load_courses_by_subj($term, $subj_area)
                 node_delete($nid);
             }
         }
+        // reload our original user
+        $user = user_load($current_uid);
     }
 } // function penncourse_load_courses_by_subj
 
@@ -546,13 +574,18 @@ function penncourse_is_summer_term()
 function penncourse_xml_to_array($xmlstring)
 {
     $result = array();
-    $xml = new SimpleXMLElement($xmlstring);
-    foreach ($xml->xpath('/*/*') as $record) {
-        $record_array = array();
-        foreach ($record->children() as $element) {
-            $record_array[$element->getName()] = (string)$element;
+    try {
+        $xml = new SimpleXMLElement($xmlstring);
+        foreach ($xml->xpath('/*/*') as $record) {
+            $record_array = array();
+            foreach ($record->children() as $element) {
+                $record_array[$element->getName()] = (string)$element;
+            }
+            $result[] = $record_array;
         }
-        $result[] = $record_array;
+    }
+    catch (Exception $e) {
+        penncourse_log_exception($e, $xmlstring);
     }
 
     return $result;
@@ -569,9 +602,14 @@ function penncourse_xml_to_array($xmlstring)
 function penncourse_simple_xml_to_array($xmlstring)
 {
     $result = array();
-    $xml = new SimpleXMLElement($xmlstring);
-    foreach ($xml->xpath('/*/*') as $record) {
-        $result[] = (string)$record;
+    try{
+        $xml = new SimpleXMLElement($xmlstring);
+        foreach ($xml->xpath('/*/*') as $record) {
+            $result[] = (string)$record;
+        }
+    }
+    catch (Exception $e) {
+        penncourse_log_exception($e, $xmlstring);
     }
 
     return $result;
@@ -653,15 +691,12 @@ function penncourse_transform_sec_reg_ctrl($sec_reg_ctrl) {
  * @param string $sec_type
  */
 function penncourse_transform_sec_type($sec_type) {
-    watchdog('penncourse cron', 'function penncourse_transform_sec_type', array(), WATCHDOG_NOTICE);
     $result_array = array();
 
     if ($sec_type) {
-        watchdog('penncourse cron', $sec_type, array(), WATCHDOG_NOTICE);
         $sec_type_array = penncourse_xml_to_array($sec_type);
 
         foreach ($sec_type_array as $record) {
-            watchdog('penncourse cron', $record['section-type-desc'], array(), WATCHDOG_NOTICE);
             $result_array[] = $record['section-type-desc'];
         }
     }
@@ -704,16 +739,20 @@ function penncourse_translate_day($d)
 function penncourse_transform_description($xmlstring)
 {
     $output = '';
-    $xml = new SimpleXMLElement($xmlstring);
-    foreach ($xml->xpath('/div[p]') as $description) {
-        // $output .= '<ul class="penncourse-course-location">';
-        foreach ($description->p as $para) {
-            $output .= $para;
-            $output .= chr(10) . chr(13) . chr(10) . chr(13);
+    try {
+        $xml = new SimpleXMLElement($xmlstring);
+        foreach ($xml->xpath('/div[p]') as $description) {
+            // $output .= '<ul class="penncourse-course-location">';
+            foreach ($description->p as $para) {
+                $output .= $para;
+                $output .= chr(10) . chr(13) . chr(10) . chr(13);
+            }
         }
     }
+    catch (Exception $e) {
+        penncourse_log_exception($e, $xmlstring);
+    }
 
-    // echo $output.chr(10).chr(13);
     return $output;
 } // function penncourse_transform_description
 
@@ -725,18 +764,22 @@ function penncourse_transform_description($xmlstring)
 function penncourse_transform_instructors($xmlstring)
 {
     $xhtml = '';
-    $xml = new SimpleXMLElement($xmlstring);
-    foreach ($xml->xpath("/instructors[instructor]") as $instructors) {
-        // $xhtml .= '<ul class="penncourse-course-instructors">';
-        foreach ($instructors->instructor as $instructor) {
-            if ($instructor->lastname) {
-                $xhtml .= '<span class="penncourse-course-instructor" id="' . $instructor->pennkey . '">' . $instructor->lastname . ', ' . $instructor->firstname . '</span><br />';
+    try {
+        $xml = new SimpleXMLElement($xmlstring);
+        foreach ($xml->xpath("/instructors[instructor]") as $instructors) {
+            // $xhtml .= '<ul class="penncourse-course-instructors">';
+            foreach ($instructors->instructor as $instructor) {
+                if ($instructor->lastname) {
+                    $xhtml .= '<span class="penncourse-course-instructor" id="' . $instructor->pennkey . '">' . $instructor->lastname . ', ' . $instructor->firstname . '</span><br />';
+                }
             }
+            // $xhtml .= '</ul>';
         }
-        // $xhtml .= '</ul>';
+    }
+    catch (Exception $e) {
+        penncourse_log_exception($e, $xmlstring);
     }
 
-    // echo $xhtml.chr(10).chr(13);
     return $xhtml;
 } // function penncourse_transform_instructors()
 
@@ -748,16 +791,20 @@ function penncourse_transform_instructors($xmlstring)
 function penncourse_transform_meetings($xmlstring)
 {
     $xhtml = '';
-    $xml = new SimpleXMLElement($xmlstring);
-    foreach ($xml->xpath('/meetings[meeting]') as $meetings) {
-        foreach ($meetings->meeting as $meeting) {
-            if ($meeting->days && $meeting->time) {
-                $xhtml .= '<span class="penncourse-course-meeting">' . $meeting->days . ' ' . $meeting->time . '</span><br />';
+    try {
+        $xml = new SimpleXMLElement($xmlstring);
+        foreach ($xml->xpath('/meetings[meeting]') as $meetings) {
+            foreach ($meetings->meeting as $meeting) {
+                if ($meeting->days && $meeting->time) {
+                    $xhtml .= '<span class="penncourse-course-meeting">' . $meeting->days . ' ' . $meeting->time . '</span><br />';
+                }
             }
         }
     }
+    catch (Exception $e) {
+        penncourse_log_exception($e, $xmlstring);
+    }
 
-    // echo $xhtml.chr(10).chr(13);
     return $xhtml;
 } // function penncourse_transform_meetings
 
@@ -769,16 +816,21 @@ function penncourse_transform_meetings($xmlstring)
 function penncourse_transform_location($xmlstring)
 {
     $xhtml = '';
-    $xml = new SimpleXMLElement($xmlstring);
-    foreach ($xml->xpath('/meetings[meeting]') as $meetings) {
-        // $xhtml .= '<ul class="penncourse-course-location">';
-        foreach ($meetings->meeting as $meeting) {
-            // $xhtml .= '<li><span style="font-weight:bold">Room: </span>'.$meeting->room.' &nbsp; '.$meeting->building.'</li>';
-            if ($meeting->building && $meeting->room) {
-                $xhtml .= '<span class="penncourse-course-location">' . $meeting->building . ' ' . $meeting->room . '</span><br />';
+    try {
+        $xml = new SimpleXMLElement($xmlstring);
+        foreach ($xml->xpath('/meetings[meeting]') as $meetings) {
+            // $xhtml .= '<ul class="penncourse-course-location">';
+            foreach ($meetings->meeting as $meeting) {
+                // $xhtml .= '<li><span style="font-weight:bold">Room: </span>'.$meeting->room.' &nbsp; '.$meeting->building.'</li>';
+                if ($meeting->building && $meeting->room) {
+                    $xhtml .= '<span class="penncourse-course-location">' . $meeting->building . ' ' . $meeting->room . '</span><br />';
+                }
             }
+            // $xhtml .= '</ul>';
         }
-        // $xhtml .= '</ul>';
+    }
+    catch (Exception $e) {
+        penncourse_log_exception($e, $xmlstring);
     }
 
     // echo $xhtml.chr(10).chr(13);
@@ -951,4 +1003,8 @@ function penncourse_load_course_node($course_id, $term)
     }
 
 } // function penncourse_load_course_node($subj_code)
+
+function penncourse_log_exception(Exception $e, $message) {
+    watchdog('penncourse cron', 'exception: ' . $e->getMessage() . ' - ' . $message, array(), WATCHDOG_NOTICE);
+}
 
