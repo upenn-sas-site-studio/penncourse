@@ -22,6 +22,14 @@ function penncourse_init() {
     drupal_set_message("<textarea rows=30 style=\"width: 100%;\">" . $output . '</textarea>');
 } */
 
+function penncourse_init() {
+    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.effects.core.min.js');
+    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.effects.slide.min.js');
+    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.effects.fade.min.js');
+    drupal_add_css(drupal_get_path('module', 'jquery_update') . '/replace/ui/themes/base/minified/jquery.ui.core.min.css');
+    drupal_add_css(drupal_get_path('module', 'jquery_update') . '/replace/ui/themes/base/minified/jquery.ui.theme.min.css');
+}
+
 /**
 * Display help and module information
 * @param section which section of the site we're displaying help

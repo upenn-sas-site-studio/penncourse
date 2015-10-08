@@ -144,6 +144,87 @@ function penncourse_install() {
 }
 
 /**
+ * create role for use by the penncourse_user
+ */
+function _penncourse_create_role() {
+    if(!user_role_load_by_name('penncourse user')){
+        $role = new stdClass();
+        $role->name = 'penncourse user';
+        user_role_save($role);
+    }
+}
+
+function _penncourse_create_user() {
+    // create and save new user who will author content associated with this module
+    // first try to load the penncourse_user
+    $penncourse_user = user_load_by_name('penncourse_user');
+    if (!$penncourse_user) {
+        $new_user = array(
+            'name' => 'penncourse_user',
+            'mail' => 'penncourse_user@sas.upenn.edu',
+            'status' => 1,
+            'pass' => _penncourse_rand_password(),
+        );
+        $penncourse_user = user_save(NULL, $new_user);
+    }
+
+    $penncourse_role = user_role_load_by_name('penncourse user');
+
+    if($penncourse_role){
+        // assign the penncourse user role
+        $role = user_role_load_by_name('sas event calendar user');
+        user_multiple_role_edit(array($penncourse_user->uid), 'add_role', $role->rid);
+    }
+}
+
+function _penncourse_update_content_user() {
+    $penncourse_user = user_load_by_name('penncourse_user');
+
+    if ($penncourse_user) {
+        $nodes_updated = db_update('node') // Table name no longer needs {}
+            ->fields(array(
+                'uid' => $penncourse_user->uid,
+            ))
+            ->condition('type', array('pc_section', 'pc_course'), 'IN')
+            ->execute();
+    }
+}
+
+/**
+ * function _sas_event_calendar_rand_password($length = 16)
+ *
+ * generates a random password to save as a drupal native password
+ */
+function _penncourse_rand_password($length = 16) {
+    $vowels = 'aeuyAEUY';
+    $consonants = 'bdghjmnpqrstvzBDGHJLMNPQRSTVWXZ23456789@#$%';
+
+    $password = '';
+    $alt = time() % 2;
+    for ($i = 0; $i < $length; $i++) {
+        if ($alt == 1) {
+            $password .= $consonants[(rand() % strlen($consonants))];
+            $alt = 0;
+        }
+        else {
+            $password .= $vowels[(rand() % strlen($vowels))];
+            $alt = 1;
+        }
+    }
+    return $password;
+}
+
+/**
+ * Add the penncourse user, who will manage course content
+ */
+function penncourse_update_7101() {
+    _penncourse_create_role();
+    _penncourse_create_user();
+    _penncourse_update_content_user();
+}
+
+
+/**
  * implementation of hook_uninstall
  */
 function penncourse_uninstall() {
