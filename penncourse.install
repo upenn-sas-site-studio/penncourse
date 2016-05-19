@@ -251,16 +251,11 @@ function penncourse_uninstall() {
     }
 
     // find all fields and delete them
-    $fields = field_info_field_map();
-    foreach (array_keys($fields) as $field) {
-        field_delete_field($field);
-    }
-
     foreach (array('pc_section', 'pc_course') AS $content_type) {
         // find all fields and delete instance
         $instances = field_info_instances('node', $content_type);
         foreach ($instances as $instance_name => $instance) {
-            field_delete_instance($instance);
+            field_delete_field($instance['field_name']);
         }
 
         // delete our content type
