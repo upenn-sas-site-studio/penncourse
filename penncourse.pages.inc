@@ -14,8 +14,7 @@
  * if $subj_code is given, include Subject Area description
  */
 function penncourse_course_list_term($term, $subj_code = 'all', $level = 'all') {
-    // $node = node_load(1289);
-    // dpm($node);
+
     module_load_include('inc', 'penncourse', 'penncourse.include');
     drupal_add_js(drupal_get_path('module', 'penncourse') . '/js/penncourse_course_table.js');
     $breadcrumb = array(l(t('Home'), NULL));
@@ -81,8 +80,8 @@ function penncourse_course_detail($term, $course_id) {
  */
 function penncourse_load_year($year) {
     module_load_include('inc', 'penncourse', 'penncourse.include');
-    // check for valid year - no data loaded for years before 2008
-    if (!preg_match('/^[0-9]{4}$/', $year) || (($year < 2008) || ($year > date('Y', REQUEST_TIME)))) {
+    // check for valid year - no data loaded for years before 2003
+    if (!preg_match('/^[0-9]{4}$/', $year) || (($year < 2003) || ($year > date('Y', REQUEST_TIME)))) {
         $output = 'Invalid year specified.';
         return $output;
         // drupal_not_found();
