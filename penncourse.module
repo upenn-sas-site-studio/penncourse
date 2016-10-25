@@ -173,7 +173,7 @@ function penncourse_filter_form($form, &$form_state) {
         $default_term = arg(2);
     }
     else {
-        $default_term = penncourse_current_term_no_summer();
+        $default_term = penncourse_load_final_term();
     }
 
     if (arg(4)) {
@@ -214,7 +214,7 @@ function penncourse_filter_form($form, &$form_state) {
         '#options' => array(
             'all' => 'All',
             'undergraduate' => 'Undergraduate',
-            'graduate' => 'graduate',
+            'graduate' => 'Graduate',
         ),
         '#default_value' => $default_level,
         // '#description' => t('Select a subject to restrict the course display.'),
