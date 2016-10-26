@@ -100,3 +100,18 @@ function penncourse_load_year($year) {
     }
 
 } // function penncourse_load_year($year)
+
+function penncourse_data_retrieve_test() {
+    module_load_include('inc', 'penncourse', 'penncourse.include');
+    $output = '';
+    $section_params = penncourse_retrieve_section_params();
+    pcpm($section_params);
+
+    $course_data = penncourse_retrieve_term_courses('ANTH');
+    pcpm($course_data);
+
+    $section_data = penncourse_retrieve_term_sections('2016C', 'ANTH');
+    pcpm($section_data);
+
+    return $output;
+}

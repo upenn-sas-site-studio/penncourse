@@ -40,7 +40,7 @@ function penncourse_admin_settings() {
 
   $form['penncourse_authorization_token'] = array(
     '#type' => 'textfield',
-    '#title' => t('Application ID'),
+    '#title' => t('Authorization token'),
     '#required' => TRUE,
     '#default_value' => variable_get('penncourse_authorization_token', ''),
     '#description' => t('Enter the authorization token for this service access account. ' . l('Request credentials here.', 'https://secure.www.upenn.edu/computing/da/webloginportal/eforms/index.html?content=kew/EDocLite?edlName=openDataRequestForm&userAction=initiate')),

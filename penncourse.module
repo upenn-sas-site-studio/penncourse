@@ -23,9 +23,9 @@ function penncourse_init() {
 } */
 
 function penncourse_init() {
-    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.effects.core.min.js');
-    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.effects.slide.min.js');
-    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.effects.fade.min.js');
+    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.ui.core.min.js');
+    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.ui.effect-slide.min.js');
+    drupal_add_js(drupal_get_path('module', 'jquery_update') . '/replace/ui/ui/minified/jquery.ui.effect-fade.min.js');
     drupal_add_css(drupal_get_path('module', 'jquery_update') . '/replace/ui/themes/base/minified/jquery.ui.core.min.css');
     drupal_add_css(drupal_get_path('module', 'jquery_update') . '/replace/ui/themes/base/minified/jquery.ui.theme.min.css');
 }
@@ -90,6 +90,24 @@ function penncourse_menu() {
         'access arguments' => array('access penncourse content'),
         'type' => MENU_CALLBACK,
         'file' => 'penncourse.pages.inc',
+    );
+    $items['pc/test'] = array(
+        'title' => 'Courses',
+        'page callback' => 'penncourse_data_retrieve_test',
+        'page arguments' => array(NULL),
+        'access callback' => 'user_access',
+        'access arguments' => array('admin penncourse'),
+        'type' => MENU_CALLBACK,
+        'file' => 'penncourse.pages.inc',
+    );
+    $items['pc/whack'] = array(
+        'title' => 'Courses',
+        'page callback' => 'penncourse_whack',
+        'page arguments' => array(NULL),
+        'access callback' => 'user_access',
+        'access arguments' => array('admin penncourse'),
+        'type' => MENU_CALLBACK,
+        'file' => 'penncourse.include.inc',
     );
     $items['pc/term/%'] = array(
         'title' => 'Courses',
@@ -199,7 +217,7 @@ function penncourse_filter_form($form, &$form_state) {
     );
 
     $subjects = penncourse_get_all_subjects();
-    $subjects = array_merge( array('all' => 'All department subjects'), $subjects);
+    $subjects = array_merge(array('all' => 'All department subjects'), $subjects);
     $form['Subject'] = array(
         '#type' => 'select',
         '#title' => t('Subject'),
@@ -234,8 +252,11 @@ function penncourse_filter_form_submit($form, &$form_state) {
  */
 function penncourse_cron() {
   module_load_include('inc', 'penncourse', 'penncourse.include');
+
+  // update the section search parameters (includes currently open terms and subject area mappings)
+  penncourse_update_section_params();
   $subject_array = explode(' ', trim(variable_get('penncourse_subject_areas', '')));
-  
+
   // process each subject area as set on the penncourse system settings form
   foreach ($subject_array as $subject) {
     penncourse_process_subj_area($subject);
@@ -244,7 +265,7 @@ function penncourse_cron() {
 
 /**
  * function pcpm
- * 
+ *
  * a wrapper for the devel module dpm function
  */
 function pcpm($value) {
@@ -252,4 +273,3 @@ function pcpm($value) {
     dpm($value);
   }
 }
-
