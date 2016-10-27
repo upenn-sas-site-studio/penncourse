@@ -91,7 +91,7 @@ function penncourse_menu() {
         'type' => MENU_CALLBACK,
         'file' => 'penncourse.pages.inc',
     );
-    $items['pc/test'] = array(
+    /* $items['pc/test'] = array(
         'title' => 'Courses',
         'page callback' => 'penncourse_data_retrieve_test',
         'page arguments' => array(NULL),
@@ -108,7 +108,7 @@ function penncourse_menu() {
         'access arguments' => array('admin penncourse'),
         'type' => MENU_CALLBACK,
         'file' => 'penncourse.include.inc',
-    );
+    ); */
     $items['pc/term/%'] = array(
         'title' => 'Courses',
         'page callback' => 'penncourse_course_list_term',
@@ -191,7 +191,7 @@ function penncourse_filter_form($form, &$form_state) {
         $default_term = arg(2);
     }
     else {
-        $default_term = penncourse_current_term_no_summer();
+        $default_term = penncourse_load_final_term();
     }
 
     if (arg(4)) {
@@ -232,7 +232,7 @@ function penncourse_filter_form($form, &$form_state) {
         '#options' => array(
             'all' => 'All',
             'undergraduate' => 'Undergraduate',
-            'graduate' => 'graduate',
+            'graduate' => 'Graduate',
         ),
         '#default_value' => $default_level,
         // '#description' => t('Select a subject to restrict the course display.'),
