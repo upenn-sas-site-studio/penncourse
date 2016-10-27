@@ -524,33 +524,6 @@ function penncourse_load_sections_by_subj($term, $subj_area) {
             pcpm('section data');
             pcpm($sections);
 
-            // loop through $courses array and update or create pc_course nodes as needed
-            /* foreach ($courses as $key => $course_record) {
-                $course_info = array();
-                $course_info['title'] = $course_record->course_inventory_title;
-                $course_info['descr'] = penncourse_transform_description($course_record->course_desc);
-                $course_info['syllabus_url'] = $course_record->syllabus_url;
-                $course_info['course_id'] = $course_record->course_id;
-                $course_info['term'] = $course_record->term;
-                $course_info['term_session'] = $course_record->term_session;
-                $course_info['subj_area'] = $course_record->subject_area;
-                $course_info['dist_req'] = penncourse_translate_dist_req($course_record->distribution_requirement);
-                $course_info['status'] = $course_record->status;
-                if ($course_record->course_no > 499) {
-                    $course_info['level'] = 'graduate';
-                }
-                else {
-                    $course_info['level'] = 'undergraduate';
-                }
-
-                if (isset($course_nodes[$key])) {
-                    penncourse_build_course_node($course_nodes[$key], $course_info);
-                }
-                else {
-                    $course_nodes[$key] = penncourse_build_course_node(NULL, $course_info);
-                }
-            } */
-
             // loop through $sections array and update or create pc_section nodes as needed
             $current_term = penncourse_current_term();
             foreach ($sections as $key => $section_record) {
@@ -1038,66 +1011,6 @@ function penncourse_load_course_node($course_id, $term) {
     else {
         return NULL;
     }
-
-    /*
-    // get database info about course fields
-    $db_info = penncourse_db_info('pc_course', array('field_pc_course_id', 'field_pc_term'));
-
-    // build query (sans parameters) from database info
-    $sql = sprintf("SELECT    n.nid AS nid,
-                                  c.%s AS field_pc_course_id,
-                                  t.%s AS field_pc_term
-                        FROM      {node} n
-                                  LEFT JOIN {%s} t ON n.nid = t.entity_id
-                                  LEFT JOIN {%s} c ON n.nid = c.entity_id
-                                  LEFT JOIN {%s} s ON n.nid = s.entity_id
-                        WHERE     (n.type in ('pc_course'))
-                                  AND (t.%s = :term)
-                                  AND (s.%s = :subject)
-                        ORDER BY  field_pc_course_id ASC",
-        $db_info['field_pc_course_id']['column'],
-        $db_info['field_pc_term']['column'],
-        $db_info['field_pc_term']['table'],
-        $db_info['field_pc_course_id']['table'],
-        $db_info['field_pc_subj_area']['table'],
-        $db_info['field_pc_term']['column'],
-        $db_info['field_pc_subj_area']['column']);
-
-    $course_table = array();
-    $course_field = array();
-    $db_info = content_database_info(content_fields('field_pc_course_id', 'pc_course'));
-    $course_table['course_id'] = $db_info['table'];
-    $course_field['course_id'] = $db_info['columns']['value']['column'];
-    $db_info = content_database_info(content_fields('field_pc_term', 'pc_course'));
-    $course_table['term'] = $db_info['table'];
-    $course_field['term'] = $db_info['columns']['value']['column'];
-    $sql = sprintf("SELECT DISTINCT c.nid AS course_nid " .
-        "FROM %s c JOIN %s t ON (c.entity_id = t.entity_id AND c.revision_id = t.revision_id) " .
-        "JOIN node n ON (n.nid = t.entity_id AND n.vid = t.revision_id AND n.type = 'pc_course') " .
-        "WHERE c.%s = '%s' AND  t.%s = '%s'",
-        $course_table['course_id'],
-        $course_table['term'],
-        $course_field['course_id'],
-        $course_id,
-        $course_field['term'],
-        $term);
-
-    // echo 'course lookup sql: '.$sql.chr(10).chr(13);
-
-    $result = db_query($sql, array());
-
-    $course_nid = db_result($result);
-
-    $course_node = node_load($course_nid);
-
-    if ($course_nid) {
-        return $course_node;
-    }
-    else {
-        // echo 'Course not found: '.$course_id.' - '.$term.chr(10).chr(13);
-        return NULL;
-    } */
-
 } // function penncourse_load_course_node($subj_code)
 
 /**
@@ -1434,7 +1347,7 @@ function penncourse_retrieve_section_params() {
  * for development only: remove all penncourse content
  */
 
-function penncourse_whack() {
+function _penncourse_whack() {
     // delete all nodes for the penncourse content types
     foreach (array('pc_section', 'pc_course') AS $content_type) {
         // gather all $content_type nodes created

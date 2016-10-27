@@ -102,7 +102,7 @@ function penncourse_menu() {
     );
     $items['pc/whack'] = array(
         'title' => 'Courses',
-        'page callback' => 'penncourse_whack',
+        'page callback' => '_penncourse_whack',
         'page arguments' => array(NULL),
         'access callback' => 'user_access',
         'access arguments' => array('admin penncourse'),
