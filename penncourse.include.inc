@@ -195,9 +195,9 @@ function penncourse_dynamic_terms($number_forward, $number_backward) {
  */
 function penncourse_session_descriptions() {
     return array('' => "12-Week Session",
-        '1' => "6-Week Summer Session I",
-        '2' => "6-Week Summer Session II",
-        'S' => "Special Session");
+                 '1' => "6-Week Summer Session I",
+                 '2' => "6-Week Summer Session II",
+                 'S' => "Special Session");
 } // function penncourse_session_descriptions
 
 /**
@@ -215,12 +215,12 @@ function _penncourse_load_keyed_nids($type_name, $field_name) {
     // get nids and the key specified by $field_name
     // we need to build the query string with the table and column names first
     $sql = sprintf("SELECT DISTINCT(n.nid) AS nid,
-                            c.%s AS %s
-                            FROM {node} n
-                            LEFT JOIN {%s} c ON n.vid = c.vid
-                            WHERE n.type in (:type)
-                            GROUP BY nid
-                            ORDER BY %s ASC",
+                           c.%s AS %s
+                      FROM {node} n
+                           LEFT JOIN {%s} c ON n.vid = c.vid
+                     WHERE n.type in (:type)
+                  GROUP BY nid
+                  ORDER BY %s ASC",
         $db_info[$field_name]['column'],
         $field_name,
         $db_info[$field_name]['table'],
@@ -228,9 +228,7 @@ function _penncourse_load_keyed_nids($type_name, $field_name) {
     );
 
     // now we can use the db_query parameterization
-    $results = db_query($sql,
-        array(':type' => $type_name));
-
+    $results = db_query($sql, array(':type' => $type_name));
 
     foreach ($results as $key_array) {
         $nids[$key_array->$field_name] = $key_array->nid;
@@ -257,17 +255,17 @@ function penncourse_load_course_nids($term, $subj_area = NULL) {
         $nids = array();
         // get nids and the course_key
         // this first string is just for debugging
-        $sql = sprintf("			SELECT 		n.nid AS nid,
-   																	c.%s AS field_pc_course_id,
-   																	t.%s AS field_pc_term
- 												 	FROM 			{node} n 
- 												 	LEFT JOIN {%s} t ON n.nid = t.entity_id
- 												 	LEFT JOIN {%s} c ON n.nid = c.entity_id
- 												 	LEFT JOIN {%s} s ON n.nid = s.entity_id
- 												 	WHERE 		(n.type in ('pc_course'))
- 												 	            AND (t.%s = '%s')
- 												 	            AND (s.%s = '%s')
-   											 	ORDER BY 	field_pc_course_id ASC",
+        $sql = sprintf("SELECT n.nid AS nid,
+                               c.%s AS field_pc_course_id,
+                               t.%s AS field_pc_term
+                          FROM {node} n 
+                               LEFT JOIN {%s} t ON n.nid = t.entity_id
+                               LEFT JOIN {%s} c ON n.nid = c.entity_id
+                               LEFT JOIN {%s} s ON n.nid = s.entity_id
+                         WHERE (n.type in ('pc_course'))
+                           AND (t.%s = '%s')
+                           AND (s.%s = '%s')
+                      ORDER BY field_pc_course_id ASC",
             $db_info['field_pc_course_id']['column'],
             $db_info['field_pc_term']['column'],
             $db_info['field_pc_term']['table'],
@@ -280,17 +278,17 @@ function penncourse_load_course_nids($term, $subj_area = NULL) {
         pcpm('course node lookup SQL: ' . $sql);
 
         // now build the query string with table names, leaving named placeholders for db_query parameter substitution
-        $sql = sprintf("SELECT    n.nid AS nid,
-                                  c.%s AS field_pc_course_id,
-                                  t.%s AS field_pc_term
-                        FROM      {node} n
-                                  LEFT JOIN {%s} t ON n.nid = t.entity_id
-                                  LEFT JOIN {%s} c ON n.nid = c.entity_id
-                                  LEFT JOIN {%s} s ON n.nid = s.entity_id
-                        WHERE     (n.type in ('pc_course'))
-                                  AND (t.%s = :term)
-                                  AND (s.%s = :subject)
-                        ORDER BY  field_pc_course_id ASC",
+        $sql = sprintf("SELECT n.nid AS nid,
+                               c.%s AS field_pc_course_id,
+                               t.%s AS field_pc_term
+                          FROM {node} n
+                               LEFT JOIN {%s} t ON n.nid = t.entity_id
+                               LEFT JOIN {%s} c ON n.nid = c.entity_id
+                               LEFT JOIN {%s} s ON n.nid = s.entity_id
+                         WHERE (n.type in ('pc_course'))
+                           AND (t.%s = :term)
+                           AND (s.%s = :subject)
+                      ORDER BY  field_pc_course_id ASC",
             $db_info['field_pc_course_id']['column'],
             $db_info['field_pc_term']['column'],
             $db_info['field_pc_term']['table'],
@@ -333,17 +331,17 @@ function penncourse_load_section_nids($term, $subj_area = NULL) {
         $nids = array();
         // get nids and the course_key
         // we just build this string for debugging
-        $sql = sprintf("			SELECT 		n.nid AS nid,
-   																	c.%s AS field_pc_section_id,
-   																	t.%s AS field_pc_term
- 												 	FROM 			{node} n 
- 												 	LEFT JOIN {%s} t ON n.nid = t.entity_id
- 												 	LEFT JOIN {%s} c ON n.nid = c.entity_id
- 												 	LEFT JOIN {%s} s ON n.nid = s.entity_id
- 												 	WHERE 		(n.type in ('pc_section'))
- 												 	            AND (t.%s = '%s')
- 												 	            AND (s.%s = '%s')
-   											 	ORDER BY 	field_pc_section_id ASC",
+        $sql = sprintf("SELECT n.nid AS nid,
+                               c.%s AS field_pc_section_id,
+                               t.%s AS field_pc_term
+                          FROM {node} n 
+                               LEFT JOIN {%s} t ON n.nid = t.entity_id
+                               LEFT JOIN {%s} c ON n.nid = c.entity_id
+                               LEFT JOIN {%s} s ON n.nid = s.entity_id
+                         WHERE (n.type in ('pc_section'))
+                           AND (t.%s = '%s')
+                           AND (s.%s = '%s')
+                      ORDER BY field_pc_section_id ASC",
             $db_info['field_pc_section_id']['column'],
             $db_info['field_pc_term']['column'],
             $db_info['field_pc_term']['table'],
@@ -356,17 +354,17 @@ function penncourse_load_section_nids($term, $subj_area = NULL) {
         pcpm('section node lookup SQL: ' . $sql);
 
         // now build the query string with table names, leaving named placeholders for db_query parameter substitution
-        $sql = sprintf("SELECT        n.nid AS nid,
-                                      c.%s AS field_pc_section_id,
-                                      t.%s AS field_pc_term
-                        FROM          {node} n
-                                      LEFT JOIN {%s} t ON n.nid = t.entity_id
-                                      LEFT JOIN {%s} c ON n.nid = c.entity_id
-                                      LEFT JOIN {%s} s ON n.nid = s.entity_id
-                        WHERE         (n.type in ('pc_section'))
-                                      AND (t.%s = :term)
-                                      AND (s.%s = :subject)
-                        ORDER BY      field_pc_section_id ASC",
+        $sql = sprintf("SELECT n.nid AS nid,
+                               c.%s AS field_pc_section_id,
+                               t.%s AS field_pc_term
+                          FROM {node} n
+                               LEFT JOIN {%s} t ON n.nid = t.entity_id
+                               LEFT JOIN {%s} c ON n.nid = c.entity_id
+                               LEFT JOIN {%s} s ON n.nid = s.entity_id
+                         WHERE (n.type in ('pc_section'))
+                           AND (t.%s = :term)
+                           AND (s.%s = :subject)
+                      ORDER BY field_pc_section_id ASC",
             $db_info['field_pc_section_id']['column'],
             $db_info['field_pc_term']['column'],
             $db_info['field_pc_term']['table'],
@@ -378,7 +376,7 @@ function penncourse_load_section_nids($term, $subj_area = NULL) {
         // now we use that prepared statement with our query parameters
         $results = db_query($sql,
             array(':term' => $term,
-                ':subject' => $subj_area));
+                  ':subject' => $subj_area));
 
         pcpm('section node lookup SQL: ' . $sql);
 
@@ -455,56 +453,56 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
         pcpm($section_nodes);
 
         // get course data
-        $sql = sprintf("SELECT 	p.subject_area,
-    															p.course_id, 
-    															p.course_no, 
-    															p.course_inventory_title,
-    															p.course_title,
-    															p.course_instructors,
-    															p.section_id, 
-    															p.section_no, 
-    															p.course_desc, 
-    															p.term, 
-    															p.term_session, 
-    															p.course_meeting, 
-    															p.xlists, 
-    															p.activity, 
-    															p.syllabus_url, 
-    															p.distribution_requirement, 
-    															p.section_reg_control,
-    															p.section_type_term,
-    															p.status
-                        FROM 			{warehousesync.pc_courses_temp} p
-												WHERE 		p.term = '%s' 
-                        AND 			p.subject_area = '%s'
-                        ORDER BY 	p.course_no, p.section_no",
+        $sql = sprintf("SELECT p.subject_area,
+                               p.course_id, 
+                               p.course_no, 
+                               p.course_inventory_title,
+                               p.course_title,
+                               p.course_instructors,
+                               p.section_id, 
+                               p.section_no, 
+                               p.course_desc, 
+                               p.term, 
+                               p.term_session, 
+                               p.course_meeting, 
+                               p.xlists, 
+                               p.activity, 
+                               p.syllabus_url, 
+                               p.distribution_requirement, 
+                               p.section_reg_control,
+                               p.section_type_term,
+                               p.status
+                          FROM {warehousesync.pc_courses_temp} p
+                         WHERE p.term = '%s' 
+                           AND p.subject_area = '%s'
+                      ORDER BY p.course_no, p.section_no",
             $term,
             $subj_area);
-        $results = db_query("SELECT 	p.subject_area,
-    															p.course_id, 
-    															p.course_no, 
-    															p.course_inventory_title,
-    															p.course_title,
-    															p.course_instructors, 
-    															p.section_id, 
-    															p.section_no, 
-    															p.course_desc, 
-    															p.term, 
-    															p.term_session, 
-    															p.course_meeting, 
-    															p.xlists, 
-    															p.activity, 
-    															p.syllabus_url, 
-    															p.distribution_requirement, 
-    															p.section_reg_control,
-    															p.section_type_term,
-    															p.status
-                        FROM 			warehousesync.pc_courses_temp p
-												WHERE 		p.term = :term
-                        AND 			p.subject_area = :subject
-                        ORDER BY 	p.course_no, p.section_no",
+        $results = db_query("SELECT p.subject_area,
+                                    p.course_id, 
+                                    p.course_no, 
+                                    p.course_inventory_title,
+                                    p.course_title,
+                                    p.course_instructors, 
+                                    p.section_id, 
+                                    p.section_no, 
+                                    p.course_desc, 
+                                    p.term, 
+                                    p.term_session, 
+                                    p.course_meeting, 
+                                    p.xlists, 
+                                    p.activity, 
+                                    p.syllabus_url, 
+                                    p.distribution_requirement, 
+                                    p.section_reg_control,
+                                    p.section_type_term,
+                                    p.status
+                               FROM warehousesync.pc_courses_temp p
+                              WHERE p.term = :term
+                                AND p.subject_area = :subject
+                           ORDER BY p.course_no, p.section_no",
             array(':term' => $term,
-                ':subject' => $subj_area));
+                  ':subject' => $subj_area));
         pcpm($sql);
 
         // build course and section arrays, keyed to term-course_id and term_section_id
@@ -1026,11 +1024,11 @@ function penncourse_current_term_no_summer() {
 function penncourse_load_course_node($course_id, $term) {
     $query = new EntityFieldQuery();
     $entity = $query->entityCondition('entity_type', 'node')
-        ->propertyCondition('type', 'pc_course')
-        ->fieldCondition('field_pc_course_id', $course_id)
-        ->fieldCondition('field_pc_term', $term)
-        ->range(0, 1)
-        ->execute();
+                ->propertyCondition('type', 'pc_course')
+                ->fieldCondition('field_pc_course_id', $course_id)
+                ->fieldCondition('field_pc_term', $term)
+                ->range(0, 1)
+                ->execute();
 
     if (!empty($entity['node'])) {
         $node = node_load(current(array_keys($entity['node'])));
@@ -1040,66 +1038,6 @@ function penncourse_load_course_node($course_id, $term) {
     else {
         return NULL;
     }
-
-    /*
-    // get database info about course fields
-    $db_info = penncourse_db_info('pc_course', array('field_pc_course_id', 'field_pc_term'));
-
-    // build query (sans parameters) from database info
-    $sql = sprintf("SELECT    n.nid AS nid,
-                                  c.%s AS field_pc_course_id,
-                                  t.%s AS field_pc_term
-                        FROM      {node} n
-                                  LEFT JOIN {%s} t ON n.nid = t.entity_id
-                                  LEFT JOIN {%s} c ON n.nid = c.entity_id
-                                  LEFT JOIN {%s} s ON n.nid = s.entity_id
-                        WHERE     (n.type in ('pc_course'))
-                                  AND (t.%s = :term)
-                                  AND (s.%s = :subject)
-                        ORDER BY  field_pc_course_id ASC",
-        $db_info['field_pc_course_id']['column'],
-        $db_info['field_pc_term']['column'],
-        $db_info['field_pc_term']['table'],
-        $db_info['field_pc_course_id']['table'],
-        $db_info['field_pc_subj_area']['table'],
-        $db_info['field_pc_term']['column'],
-        $db_info['field_pc_subj_area']['column']);
-
-    $course_table = array();
-    $course_field = array();
-    $db_info = content_database_info(content_fields('field_pc_course_id', 'pc_course'));
-    $course_table['course_id'] = $db_info['table'];
-    $course_field['course_id'] = $db_info['columns']['value']['column'];
-    $db_info = content_database_info(content_fields('field_pc_term', 'pc_course'));
-    $course_table['term'] = $db_info['table'];
-    $course_field['term'] = $db_info['columns']['value']['column'];
-    $sql = sprintf("SELECT DISTINCT c.nid AS course_nid " .
-        "FROM %s c JOIN %s t ON (c.entity_id = t.entity_id AND c.revision_id = t.revision_id) " .
-        "JOIN node n ON (n.nid = t.entity_id AND n.vid = t.revision_id AND n.type = 'pc_course') " .
-        "WHERE c.%s = '%s' AND  t.%s = '%s'",
-        $course_table['course_id'],
-        $course_table['term'],
-        $course_field['course_id'],
-        $course_id,
-        $course_field['term'],
-        $term);
-
-    // echo 'course lookup sql: '.$sql.chr(10).chr(13);
-
-    $result = db_query($sql, array());
-
-    $course_nid = db_result($result);
-
-    $course_node = node_load($course_nid);
-
-    if ($course_nid) {
-        return $course_node;
-    }
-    else {
-        // echo 'Course not found: '.$course_id.' - '.$term.chr(10).chr(13);
-        return NULL;
-    } */
-
 } // function penncourse_load_course_node($subj_code)
 
 /**
@@ -1111,11 +1049,11 @@ function penncourse_load_course_node($course_id, $term) {
 function penncourse_find_course_nid($course_id, $term) {
     $query = new EntityFieldQuery();
     $entity = $query->entityCondition('entity_type', 'node')
-        ->propertyCondition('type', 'pc_course')
-        ->fieldCondition('field_pc_course_id', 'value', $course_id, '=')
-        ->fieldCondition('field_pc_term', 'value', $term, '=')
-        ->range(0, 1)
-        ->execute();
+                ->propertyCondition('type', 'pc_course')
+                ->fieldCondition('field_pc_course_id', 'value', $course_id, '=')
+                ->fieldCondition('field_pc_term', 'value', $term, '=')
+                ->range(0, 1)
+                ->execute();
 
     if (!empty($entity['node'])) {
         $nid = current(array_keys($entity['node']));
@@ -1135,9 +1073,9 @@ function penncourse_get_all_terms() {
     // get database info about course fields
     $db_info = penncourse_db_info('pc_course', array('field_pc_term'));
 
-    $sql = sprintf("SELECT DISTINCT     t.%s AS term
-                    FROM 			    {%s} t
- 					ORDER BY 	        term DESC",
+    $sql = sprintf("SELECT DISTINCT t.%s AS term
+                      FROM {%s} t
+                  ORDER BY term DESC",
         $db_info['field_pc_term']['column'],
         $db_info['field_pc_term']['table']);
 
