@@ -233,6 +233,16 @@ function penncourse_filter_form_submit($form, &$form_state) {
  * Implementation of hook_cron
  */
 function penncourse_cron() {
+
+  // ban running this cron from 7am-7pm to avoid mysql overload during peak times
+  $time = date('H:i');
+  if ( $time >= '07:00' && $time <= '19:00' ) {
+    $e = new Exception("Penncourse cron is banned from running 7am-7pm");
+    pcpm($e->getMessage());
+    penncourse_log_exception($e, 'skipping cron');
+    return;
+  }
+
   module_load_include('inc', 'penncourse', 'penncourse.include');
   $subject_array = explode(' ', trim(variable_get('penncourse_subject_areas', '')));
   

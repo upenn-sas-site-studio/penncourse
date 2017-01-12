@@ -440,8 +440,12 @@ function penncourse_process_subj_area($subj_area, $year = NULL) {
  * @param string $subj_area
  */
 function penncourse_load_courses_by_subj($term, $subj_area) {
+    
     pcpm(array('term' => $term, 'subj_area' => $subj_area));
 
+    // set usleep delay to .2 seconds
+    $sleep_delay = 200000;
+    
     // only run if term has been set in the admin interface
     if ($term) {
         // get course node id's
@@ -548,6 +552,8 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
             else {
                 $course_nodes[$key] = penncourse_build_course_node(NULL, $course_info);
             }
+            // build in some delay so we don't overwhelm mysql
+            usleep($sleep_delay);
         }
 
         // loop through $sections array and update or create pc_section nodes as needed
@@ -591,6 +597,9 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
             else {
                 $section_nodes[$key] = penncourse_build_section_node(NULL, $section_info);
             }
+
+            // build in some delay so we don't overwhelm mysql
+            usleep($sleep_delay);
         }
 
         // switch user to delete nodes
@@ -607,6 +616,7 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
             if (!isset($courses[$key])) {
                 watchdog('penncourse cron', 'deleting pc_course node ' . $nid, array(), WATCHDOG_NOTICE);
                 node_delete($nid);
+                usleep($sleep_delay);
             }
         }
 
@@ -615,6 +625,7 @@ function penncourse_load_courses_by_subj($term, $subj_area) {
             if (!isset($sections[$key])) {
                 watchdog('penncourse cron', 'deleting pc_section node ' . $nid, array(), WATCHDOG_NOTICE);
                 node_delete($nid);
+                usleep($sleep_delay);
             }
         }
 
@@ -963,8 +974,8 @@ function penncourse_translate_subject($subj_code) {
     if (preg_match('/[A-Za-z][A-Za-z][A-Za-z][A-Za-z]?/', $subj_code, $matches)) {
         $subj_code = strtoupper($matches[0]);
         $sql = sprintf("SELECT DISTINCT subject_area_desc " .
-            "FROM warehousesync.pc_subj_area_temp " .
-            "WHERE subject_area = '%s'",
+                         "FROM warehousesync.pc_subj_area_temp " .
+                        "WHERE subject_area = '%s'",
             $subj_code);
 
         $result = db_query($sql, array());
