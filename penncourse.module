@@ -40,7 +40,7 @@ function penncourse_help($section='') {
 
   switch ($section) {
     case "admin/help#penncourse":
-      $output = '<p>' . t("Displays course information from the Penn Data Warehouse. Requires separate configuration of data synchronization tasks.") . '</p>';
+      $output = '<p>'.  t("Displays course HELLO information from the Penn Data Warehouse. Requires separate configuration of data synchronization tasks."). '</p>';
       break;
   }
 
@@ -234,6 +234,9 @@ function penncourse_filter_form_submit($form, &$form_state) {
  */
 function penncourse_cron() {
 
+  // load dependencies
+  module_load_include('inc', 'penncourse', 'penncourse.include');
+
   // ban running this cron from 7am-7pm to avoid mysql overload during peak times
   $time = date('H:i');
   if ( $time >= '07:00' && $time <= '19:00' ) {
@@ -243,7 +246,6 @@ function penncourse_cron() {
     return;
   }
 
-  module_load_include('inc', 'penncourse', 'penncourse.include');
   $subject_array = explode(' ', trim(variable_get('penncourse_subject_areas', '')));
   
   // process each subject area as set on the penncourse system settings form
