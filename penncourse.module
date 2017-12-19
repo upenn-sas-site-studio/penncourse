@@ -91,7 +91,7 @@ function penncourse_menu() {
         'type' => MENU_CALLBACK,
         'file' => 'penncourse.pages.inc',
     );
-    /* $items['pc/test'] = array(
+    $items['pc/test'] = array(
         'title' => 'Courses',
         'page callback' => 'penncourse_data_retrieve_test',
         'page arguments' => array(NULL),
@@ -108,7 +108,7 @@ function penncourse_menu() {
         'access arguments' => array('admin penncourse'),
         'type' => MENU_CALLBACK,
         'file' => 'penncourse.include.inc',
-    ); */
+    );
     $items['pc/term/%'] = array(
         'title' => 'Courses',
         'page callback' => 'penncourse_course_list_term',
