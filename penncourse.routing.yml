@@ -1,0 +1,18 @@
+
+penncourse.penncourse_config_form:
+  path: '/admin/config/penncourse/settings'
+  defaults:
+    _form: '\Drupal\penncourse\Form\PenncourseConfigForm'
+    _title: 'PenncourseConfigForm'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
+penncourse.penncourse_controller_test:
+  path: '/courses/test'
+  defaults:
+    _controller: '\Drupal\penncourse\Controller\PenncourseController::test'
+    _title: 'test'
+  requirements:
+    _permission: 'access content'

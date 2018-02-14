@@ -1,0 +1,5 @@
+services:
+  penncourse.service:
+    class: Drupal\penncourse\PenncourseService
+    arguments: []
+
