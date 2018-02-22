@@ -1,0 +1,23 @@
+uuid: b5a2fd5d-832e-49cd-b01b-549d16b2e8f1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pc_course_int
+    - node.type.pc_section
+id: node.pc_section.field_pc_course_int
+field_name: field_pc_course_int
+entity_type: node
+bundle: pc_section
+label: 'Course number integer'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

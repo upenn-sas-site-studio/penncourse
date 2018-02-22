@@ -10,9 +10,18 @@ penncourse.penncourse_config_form:
     _admin_route: TRUE
 
 penncourse.penncourse_controller_test:
-  path: '/courses/test'
+  path: '/course-list/test'
   defaults:
     _controller: '\Drupal\penncourse\Controller\PenncourseController::test'
     _title: 'test'
+  requirements:
+    _permission: 'access content'
+
+penncourse.view:
+  # This path takes dynamic arguments, which are enclosed in { }.
+  path: '/course-list/term/{term}/subject/{subj_area}/level/{level}'
+  defaults:
+    # Because this route does not return HTML, use _controller.
+    _controller: '\Drupal\penncourse\Controller\PenncourseController::viewCourseTable'
   requirements:
     _permission: 'access content'

@@ -1,0 +1,21 @@
+uuid: 51ed9ff0-82ac-450a-bce7-640035364d50
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pc_location
+    - node.type.pc_section
+  module:
+    - text
+id: node.pc_section.field_pc_location
+field_name: field_pc_location
+entity_type: node
+bundle: pc_section
+label: 'Meeting location'
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text

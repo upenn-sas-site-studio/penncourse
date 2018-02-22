@@ -1,0 +1,19 @@
+uuid: bf6d31b8-cac3-435b-bf17-892980d98e79
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pc_term_session
+    - node.type.pc_section
+id: node.pc_section.field_pc_term_session
+field_name: field_pc_term_session
+entity_type: node
+bundle: pc_section
+label: 'Term session'
+description: 'For summer sessions, this field indicates in which session this section is offered.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

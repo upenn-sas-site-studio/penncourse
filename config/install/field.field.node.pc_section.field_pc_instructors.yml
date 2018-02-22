@@ -1,0 +1,21 @@
+uuid: bf7c8947-6436-4f31-b98e-578518d01a00
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pc_instructors
+    - node.type.pc_section
+  module:
+    - text
+id: node.pc_section.field_pc_instructors
+field_name: field_pc_instructors
+entity_type: node
+bundle: pc_section
+label: Instructors
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: text

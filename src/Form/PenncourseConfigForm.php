@@ -49,7 +49,7 @@ class PenncourseConfigForm extends ConfigFormBase {
       '#size' => 64,
       '#default_value' => $config->get('penncourse_authorization_bearer'),
     ];
-    $form['authorization_token'] = [
+    $form['penncourse_authorization_token'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Authorization token'),
       '#description' => $this->t('Enter the authorization token for this service access account. <a href="@request-credentials">Request credentials here.</a>', array(
@@ -57,7 +57,7 @@ class PenncourseConfigForm extends ConfigFormBase {
       )),
       '#maxlength' => 200,
       '#size' => 64,
-      '#default_value' => $config->get('authorization_token'),
+      '#default_value' => $config->get('penncourse_authorization_token'),
     ];
     return parent::buildForm($form, $form_state);
   }
@@ -78,7 +78,7 @@ class PenncourseConfigForm extends ConfigFormBase {
     $this->config('penncourse.penncourseconfig')
       ->set('penncourse_subject_areas', $form_state->getValue('penncourse_subject_areas'))
       ->set('penncourse_authorization_bearer', $form_state->getValue('penncourse_authorization_bearer'))
-      ->set('authorization_token', $form_state->getValue('authorization_token'))
+      ->set('penncourse_authorization_token', $form_state->getValue('penncourse_authorization_token'))
       ->save();
   }
 

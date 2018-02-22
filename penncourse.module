@@ -33,3 +33,22 @@ function penncourse_theme() {
     ],
   ];
 }
+
+/**
+ * Implementation of hook_cron
+ */
+function penncourse_cron() {
+  $penncourse = \Drupal::service('penncourse.service');
+  $penncourse_config = \Drupal::config('penncourse.penncourseconfig');
+
+  // update the section search parameters (includes currently open terms and subject area mappings)
+  $penncourse->updateSectionParams();
+
+  // get the subjects to process for this site
+  $subject_array = explode(' ', trim($penncourse_config->get('penncourse_subject_areas')));
+
+  // process each subject area as set on the penncourse system settings form
+  foreach ($subject_array as $subject) {
+    // $penncourse->processSubjectArea($subject);
+  }
+}

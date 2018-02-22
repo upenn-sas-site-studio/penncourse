@@ -1,0 +1,23 @@
+uuid: 3de2d718-4e61-43ef-9e6a-430a93068ebf
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pc_section_int
+    - node.type.pc_section
+id: node.pc_section.field_pc_section_int
+field_name: field_pc_section_int
+entity_type: node
+bundle: pc_section
+label: 'Section number integer'
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

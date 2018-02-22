@@ -1,0 +1,20 @@
+uuid: 04e59b74-8244-4186-a4eb-4926dcba913b
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_pc_meeting
+field_name: field_pc_meeting
+entity_type: node
+type: text
+settings:
+  max_length: 1600
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
