@@ -3,16 +3,15 @@ status: true
 dependencies:
   module:
     - node
-    - text
-_core:
-  default_config_hash: Xfh4BC2C_b8ELJg0V1LSY_slfObSIs8xPQl0dWiZIsU
-id: node.field_pc_meeting
-field_name: field_pc_meeting
+id: node.field_pc_status
+field_name: field_pc_status
 entity_type: node
-type: text
+type: string
 settings:
-  max_length: 1600
-module: text
+  max_length: 10
+  is_ascii: false
+  case_sensitive: false
+module: core
 locked: false
 cardinality: 1
 translatable: true

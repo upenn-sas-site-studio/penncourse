@@ -4,14 +4,12 @@ dependencies:
   module:
     - node
     - text
-_core:
-  default_config_hash: Xfh4BC2C_b8ELJg0V1LSY_slfObSIs8xPQl0dWiZIsU
-id: node.field_pc_meeting
-field_name: field_pc_meeting
+id: node.field_pc_fulfills
+field_name: field_pc_fulfills
 entity_type: node
 type: text
 settings:
-  max_length: 1600
+  max_length: 1000
 module: text
 locked: false
 cardinality: 1

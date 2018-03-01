@@ -1,4 +1,3 @@
-uuid: 5fbe647b-ca1c-4d8d-9370-0ab3a3a9d8e6
 langcode: en
 status: true
 dependencies:
@@ -7,6 +6,8 @@ dependencies:
     - node.type.pc_section
   module:
     - file
+_core:
+  default_config_hash: b-_-pU5XXzZoA4F-HgFvQ3Whke0H6xO7YUdLDIBLXME
 id: node.pc_section.field_pc_syllabus
 field_name: field_pc_syllabus
 entity_type: node

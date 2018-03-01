@@ -1,9 +1,10 @@
-uuid: 495291ad-0a27-4274-a824-e24dc1ce2487
 langcode: en
 status: true
 dependencies:
   module:
     - node
+_core:
+  default_config_hash: ihQ1C3f2LhIYppN3xJCY-6sxtLID9HZ0ydF5zIlrxC4
 id: node.field_pc_activity
 field_name: field_pc_activity
 entity_type: node

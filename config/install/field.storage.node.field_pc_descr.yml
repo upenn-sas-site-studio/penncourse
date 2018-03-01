@@ -1,9 +1,10 @@
-uuid: 7134545c-a88e-49ee-baf3-5b2ea9be7f0b
 langcode: en
 status: true
 dependencies:
   module:
     - node
+_core:
+  default_config_hash: k76ba2gadxWp_l_a64S0omoW-2W1EMF3Gye6Q2SovGo
 id: node.field_pc_descr
 field_name: field_pc_descr
 entity_type: node

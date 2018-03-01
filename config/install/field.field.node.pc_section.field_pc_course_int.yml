@@ -1,10 +1,11 @@
-uuid: b5a2fd5d-832e-49cd-b01b-549d16b2e8f1
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.node.field_pc_course_int
     - node.type.pc_section
+_core:
+  default_config_hash: UV4H7NgmL4UV6ddTr1uC407fC6CVp-qUV0xVkdXhFX0
 id: node.pc_section.field_pc_course_int
 field_name: field_pc_course_int
 entity_type: node

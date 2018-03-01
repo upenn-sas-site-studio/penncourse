@@ -1,10 +1,11 @@
-uuid: 4b2160b9-4e1d-4d52-9284-ccca8d7fed22
 langcode: en
 status: true
 dependencies:
   config:
     - field.storage.node.field_pc_descr
     - node.type.pc_section
+_core:
+  default_config_hash: Hlxso-HeApkhk7AyTH5XWtMqyNpeneBg-3BIKt7eXFc
 id: node.pc_section.field_pc_descr
 field_name: field_pc_descr
 entity_type: node

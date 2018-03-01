@@ -1,4 +1,3 @@
-uuid: 52524cff-ace6-44f8-bf08-9b71466e0236
 langcode: en
 status: true
 dependencies:
@@ -7,6 +6,8 @@ dependencies:
     - node.type.pc_section
   module:
     - text
+_core:
+  default_config_hash: Y-OWP0iI1xjjvDAe-VZfhgjYSzOM4wv9oTMyiDkmXr8
 id: node.pc_section.field_pc_sec_reg_ctrl
 field_name: field_pc_sec_reg_ctrl
 entity_type: node

@@ -1,4 +1,3 @@
-uuid: 51ed9ff0-82ac-450a-bce7-640035364d50
 langcode: en
 status: true
 dependencies:
@@ -7,6 +6,8 @@ dependencies:
     - node.type.pc_section
   module:
     - text
+_core:
+  default_config_hash: 8qsWII2AJleKF1ZteufC44YwU1KMJTjNkyTgpX-80hM
 id: node.pc_section.field_pc_location
 field_name: field_pc_location
 entity_type: node

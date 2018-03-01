@@ -1,9 +1,10 @@
-uuid: 7609288b-efdd-45d1-b178-fd3ad28336e3
 langcode: en
 status: true
 dependencies:
   module:
     - node
+_core:
+  default_config_hash: OWGUc_3UXpZRoBA0oFJpIVWGD2LtYqkDJ8olACttNTw
 id: node.field_pc_course_no
 field_name: field_pc_course_no
 entity_type: node

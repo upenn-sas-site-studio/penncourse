@@ -1,4 +1,3 @@
-uuid: 187277b9-cb74-4b26-a577-e94e3f317021
 langcode: en
 status: true
 dependencies:
@@ -7,6 +6,8 @@ dependencies:
     - node.type.pc_section
   module:
     - link
+_core:
+  default_config_hash: 7489VSb23HOOfN1lvsOeF7yQsrgI6YS4I-M5tCRVQE8
 id: node.pc_section.field_pc_syllabus_url
 field_name: field_pc_syllabus_url
 entity_type: node

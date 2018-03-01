@@ -6,6 +6,7 @@ use Drupal\Core\Controller\ControllerBase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\penncourse\Service\PenncourseService;
+use Drupal\Core\Render\Renderer;
 
 /**
  * Class PenncourseController.
@@ -30,9 +31,10 @@ class PenncourseController extends ControllerBase {
    * Constructs a new PenncourseController object.
    */
   // public function __construct(ConfigFactory $config_factory) {
-  public function __construct(ConfigFactory $config_factory, PenncourseService $penncourse) {
+  public function __construct(ConfigFactory $config_factory, PenncourseService $penncourse, Renderer $renderer) {
     $this->configFactory = $config_factory;
     $this->penncourse = $penncourse;
+    $this->renderer = $renderer;
   }
 
   /**
@@ -41,9 +43,11 @@ class PenncourseController extends ControllerBase {
   public static function create(ContainerInterface $container) {
     $config_factory = $container->get('config.factory');
     $penncourse = $container->get('penncourse.service');
+    $renderer = $container->get('renderer');
     return new static(
       $config_factory,
-      $penncourse
+      $penncourse,
+      $renderer
     );
   }
 
@@ -74,43 +78,12 @@ class PenncourseController extends ControllerBase {
     // drupal_add_js(drupal_get_path('module', 'penncourse') . '/js/penncourse_course_table.js');
     // $breadcrumb = array(l(t('Home'), NULL));
 
-    kint($this->penncourse->getSectionParams());
+    $content = [];
+    // get renderable array for view
+    $view = views_embed_view('pc_section_table', 'default', $term, $subj_code, $level);
+    // render view
+    $content['#markup'] = $this->renderer->render($view);
 
-    // if term is null, set to current term
-    if (!$term) {
-        $term = $this->penncourse->getFinalTerm();
-    }
-
-    $section_data = $this->penncourse->getTermSections('2018A', 'ECON');
-    kint($section_data);
-
-    // build title string and extra breadcrumb, if needed
-    /* $title = '';
-    if ((!$level || ($level == 'all')) && (!$subj_code || ($subj_code == 'all'))) {
-        $title = 'Courses for ';
-    }
-    else {
-        $breadcrumb[] = l(t('All courses for ' . penncourse_translate_term($term)), 'pc/term/' . $term);
-        if ($subj_code && ($subj_code != 'all')) {
-            $title = penncourse_translate_subject($subj_code);
-        }
-        if (($level == 'graduate') || ($level == 'undergraduate')) {
-            $title = ucfirst($level) . ' ' . $title;
-        }
-        $title = $title . ' courses for ';
-    }
-    $title = $title . penncourse_translate_term($term);
-    drupal_set_title(t($title));
-    drupal_set_breadcrumb($breadcrumb); */
-
-    /* $output = theme('table', array(
-      'header' => $header,
-      'rows' => $rows,
-      'attributes' => array('id' => 'mytable-order'),
-    )); */
-
-    $output = array();
-
-    return $output;
+    return $view;
   }
 }

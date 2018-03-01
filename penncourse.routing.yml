@@ -19,9 +19,12 @@ penncourse.penncourse_controller_test:
 
 penncourse.view:
   # This path takes dynamic arguments, which are enclosed in { }.
-  path: '/course-list/term/{term}/subject/{subj_area}/level/{level}'
+  path: '/course-list/{term}/{subj_area}/{level}'
   defaults:
     # Because this route does not return HTML, use _controller.
     _controller: '\Drupal\penncourse\Controller\PenncourseController::viewCourseTable'
+    term: NULL
+    subj_area: 'all'
+    level: 'all'
   requirements:
     _permission: 'access content'

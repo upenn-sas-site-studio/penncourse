@@ -1,4 +1,3 @@
-uuid: bf7c8947-6436-4f31-b98e-578518d01a00
 langcode: en
 status: true
 dependencies:
@@ -7,6 +6,8 @@ dependencies:
     - node.type.pc_section
   module:
     - text
+_core:
+  default_config_hash: asap9o3AD4VjaMOUyLeB0EC9WzzDECfpgGzYCzTsHb0
 id: node.pc_section.field_pc_instructors
 field_name: field_pc_instructors
 entity_type: node

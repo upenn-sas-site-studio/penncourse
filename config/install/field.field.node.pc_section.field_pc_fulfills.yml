@@ -2,17 +2,15 @@ langcode: en
 status: true
 dependencies:
   config:
-    - field.storage.node.field_pc_meeting
+    - field.storage.node.field_pc_fulfills
     - node.type.pc_section
   module:
     - text
-_core:
-  default_config_hash: z0A1SQglTRbFbV-NHiXJZcIPZtesrntjOPal3dg14C4
-id: node.pc_section.field_pc_meeting
-field_name: field_pc_meeting
+id: node.pc_section.field_pc_fulfills
+field_name: field_pc_fulfills
 entity_type: node
 bundle: pc_section
-label: 'Meeting times'
+label: Fulfills
 description: ''
 required: false
 translatable: false
