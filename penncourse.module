@@ -49,6 +49,6 @@ function penncourse_cron() {
 
   // process each subject area as set on the penncourse system settings form
   foreach ($subject_array as $subject) {
-    // $penncourse->processSubjectArea($subject);
+    $penncourse->processSubjectArea($subject);
   }
 }

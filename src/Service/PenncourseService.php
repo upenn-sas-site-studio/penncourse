@@ -99,7 +99,7 @@ class PenncourseService {
     $terms = $this->config->get('penncourse_available_terms');
 
     foreach ($terms as $key => $term) {
-      loadSectionsBySubject($key, $subj_area);
+      $this->updateSectionsBySubject($key, $subj_area);
     }
   }
 
