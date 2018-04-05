@@ -26,5 +26,9 @@ penncourse.view:
     term: NULL
     subj_area: 'all'
     level: 'all'
+    _title_callback: '\Drupal\penncourse\Controller\PenncourseController::viewCourseTableTitle'
+    term: NULL
+    subj_area: 'all'
+    level: 'all'
   requirements:
     _permission: 'access content'

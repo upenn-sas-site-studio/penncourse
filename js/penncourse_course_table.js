@@ -13,15 +13,14 @@
 
     function prepareCourseSectionTable(element_class) {
         var viewTable = $(element_class);
-        viewTable.find('th.views-field-term-node-tid').remove();
+        // viewTable.find('th.views-field-term-node-tid').remove();
         viewTable.find('th.views-field-field-pc-descr').remove();
-        viewTable.find('th.views-field-field-pc-descr-1').remove();
         viewTable.find('th.views-field-field-pc-xlist').remove();
-        viewTable.find('th.views-field-field-pc-dist-req').remove();
+        viewTable.find('th.views-field-field-pc-fulfills').remove();
         viewTable.find('th.views-field-field-pc-sec-reg-ctrl').remove();
         viewTable.find('th.views-field-field-pc-syllabus').remove();
         viewTable.find('th.views-field-field-pc-syllabus-url').remove();
-        viewTable.find('th.views-field-field-pc-syllabus-url-1').remove();
+        // viewTable.find('th.views-field-field-pc-syllabus-url-1').remove();
         viewTable.find('th.views-field-edit-node').remove();
         $(viewTable).find('tr').each(function( index ) {
             prepareCourseSectionRow(this);
@@ -41,27 +40,25 @@
      */
     function prepareCourseSectionRow(row) {
         $(row).data({
-            taxonomyTerms : $(row).find('td.views-field-term-node-tid').html(),
+            // taxonomyTerms : $(row).find('td.views-field-term-node-tid').html(),
             courseDescription : $(row).find('td.views-field-field-pc-descr').html(),
-            sectionDescription : $(row).find('td.views-field-field-pc-descr-1').html(),
             xlist : $(row).find('td.views-field-field-pc-xlist').html(),
-            fulfills : $(row).find('td.views-field-field-pc-dist-req').html(),
+            fulfills : $(row).find('td.views-field-field-pc-fulfills').html(),
             registrationNotes : $(row).find('td.views-field-field-pc-sec-reg-ctrl').html(),
             syllabus : $(row).find('td.views-field-field-pc-syllabus').html(),
             sectionSyllabusURL : $(row).find('td.views-field-field-pc-syllabus-url').html(),
-            courseSyllabusURL : $(row).find('td.views-field-field-pc-syllabus-url-1').html(),
+            // courseSyllabusURL : $(row).find('td.views-field-field-pc-syllabus-url-1').html(),
             editLink : $(row).find('td.views-field-edit-node').html()
         });
 
-        $(row).find('td.views-field-term-node-tid').remove();
+        // $(row).find('td.views-field-term-node-tid').remove();
         $(row).find('td.views-field-field-pc-descr').remove();
-        $(row).find('td.views-field-field-pc-descr-1').remove();
         $(row).find('td.views-field-field-pc-xlist').remove();
-        $(row).find('td.views-field-field-pc-dist-req').remove();
+        $(row).find('td.views-field-field-pc-fulfills').remove();
         $(row).find('td.views-field-field-pc-sec-reg-ctrl').remove();
         $(row).find('td.views-field-field-pc-syllabus').remove();
         $(row).find('td.views-field-field-pc-syllabus-url').remove();
-        $(row).find('td.views-field-field-pc-syllabus-url-1').remove();
+        // $(row).find('td.views-field-field-pc-syllabus-url-1').remove();
         $(row).find('td.views-field-edit-node').remove();
         // console.log($(row).data().courseDescription);
         // console.log('test');
@@ -84,14 +81,11 @@
             console.log($(row).data().courseDescription);
             console.log($(row).data().editLink);
             console.log($(row).data().xlist);
-            console.log($(row).data().taxonomyTerms);
+            // console.log($(row).data().taxonomyTerms);
             var xlist = $(row).data().xlist;
             console.log($(xlist).text());
             var newRow = '<tr class="pc-course-detail" style="display:none;"><td colspan="5" class="pc-course-detail">';
-            if (activeRow.data().sectionDescription.trim()) {
-                newRow += '<div class="field"><div class="pc-section-description">' + activeRow.data().sectionDescription + '</div></div>';
-            }
-            else if (activeRow.data().courseDescription.trim()) {
+            if (activeRow.data().courseDescription.trim()) {
                 newRow += '<div class="field"><div class="pc-course-description">' + activeRow.data().courseDescription + '</div></div>';
             }
             if (activeRow.data().editLink) {
@@ -101,13 +95,13 @@
                 newRow += '<div class="field"><div class="pc-xlist field-label">Crosslistings</div>';
                 newRow += '<div class="pc-xlist">' + activeRow.data().xlist + '</div></div>';
             }
-            if (activeRow.data().taxonomyTerms.trim()) {
-                newRow += '<div class="field"><div class="pc-taxonomy-terms field-label">Course Themes</div>';
-                newRow += '<div class="pc-taxonomy-terms">' + activeRow.data().taxonomyTerms + '</div></div>';
-            }
+            // if (activeRow.data().taxonomyTerms.trim()) {
+            //     newRow += '<div class="field"><div class="pc-taxonomy-terms field-label">Course Themes</div>';
+            //     newRow += '<div class="pc-taxonomy-terms">' + activeRow.data().taxonomyTerms + '</div></div>';
+            // }
             if (activeRow.data().fulfills.trim()) {
-                newRow += '<div class="field"><div class="pc-dist-req field-label">Fulfills</div>';
-                newRow += '<div class="pc-dist-req">' + activeRow.data().fulfills + '</div></div>';
+                newRow += '<div class="field"><div class="pc-fulfills field-label">Fulfills</div>';
+                newRow += '<div class="pc-fulfills">' + activeRow.data().fulfills + '</div></div>';
             }
             if (activeRow.data().registrationNotes.trim()) {
                 newRow += '<div class="field"><div class="pc-sec-reg-ctrl field-label">Registration Notes</div>';
@@ -121,10 +115,10 @@
                 newRow += '<div class="field"><div class="pc-syllabus-url field-label">Syllabus</div>';
                 newRow += '<div class="pc-syllabus-url">' + activeRow.data().sectionSyllabusURL + '</div></div>';
             }
-            else if (activeRow.data().courseSyllabusURL.trim()) {
-                newRow += '<div class="field"><div class="pc-syllabus-url field-label">Syllabus</div>';
-                newRow += '<div class="pc-syllabus-url">' + activeRow.data().courseSyllabusURL + '</div></div>';
-            }
+            // else if (activeRow.data().courseSyllabusURL.trim()) {
+            //     newRow += '<div class="field"><div class="pc-syllabus-url field-label">Syllabus</div>';
+            //     newRow += '<div class="pc-syllabus-url">' + activeRow.data().courseSyllabusURL + '</div></div>';
+            // }
             // '<div class="pc-edit">' + '<a href="' + activeRow.data().editLink[1].attributes[0].nodeValue + '">' + activeRow.data().editLink.text() + '</a></div>' +
             // '<div class="pc-terms">' + '<a href="' + activeRow.data().taxonomyTerms.text() + + activeRow.data().taxonomyTerms.text() + '</div>' +
             newRow += '</td></tr>';

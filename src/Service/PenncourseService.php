@@ -654,6 +654,40 @@ class PenncourseService {
       return $xhtml;
   }
 
+  /**
+   * returns a formatted string of Subject Area name
+   * ('ANTH' returns 'Anthropology')
+   * @param string $subj_code
+   * @return string
+   */
+  function translateSubject($subj_code) {
+    $subj_descr = '';
+    // get the subject map
+    $subjects = $this->config->get('penncourse_subject_map');
+
+    if ($subjects) {
+      $subj_descr = $subjects[$subj_code];
+    }
+    return $subj_descr;
+  }
+
+  /**
+   * returns a formatted string of the term name for a given $term_code
+   * ('2008C' returns 'Fall 2008')
+   * @param string $term_code
+   * @return string
+   */
+  function translateTerm($term_code) {
+    $term_name = array('A' => 'Spring', 'B' => 'Summer', 'C' => 'Fall');
+    if (is_numeric(substr($term_code, 0, 4)) && ((strtoupper(substr($term_code, 4, 1)) == 'A') || (strtoupper(substr($term_code, 4, 1)) == 'B') || (strtoupper(substr($term_code, 4, 1)) == 'C'))) {
+      return $term_name[strtoupper(substr($term_code, 4, 1))] . ' ' . substr($term_code, 0, 4);
+    }
+    else {
+      // invalid code
+      return 'Invalid term code';
+    }
+  }
+
 
 
 
