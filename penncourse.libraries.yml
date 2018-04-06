@@ -1,4 +1,7 @@
 penncourse-table:
+  css:
+    theme:
+      css/penncourse_table.css: {}
   js:
     js/penncourse_course_table.js: {}
   dependencies:

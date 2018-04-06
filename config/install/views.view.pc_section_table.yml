@@ -23,6 +23,8 @@ dependencies:
     - node
     - text
     - user
+_core:
+  default_config_hash: egy1TWA83o7u5zZgZZqSXT_d2mbvLkQqkXpxFnBTxHI
 id: pc_section_table
 label: 'Penncourse section table'
 module: views
@@ -471,7 +473,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Title (text only)'
+          label: Title
           exclude: false
           alter:
             alter_text: false
@@ -596,7 +598,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Meeting location'
+          label: Location
           exclude: false
           alter:
             alter_text: false
@@ -658,7 +660,7 @@ display:
           relationship: none
           group_type: group
           admin_label: ''
-          label: 'Meeting times'
+          label: Time
           exclude: false
           alter:
             alter_text: false
