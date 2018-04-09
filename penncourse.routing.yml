@@ -32,3 +32,12 @@ penncourse.view:
     level: 'all'
   requirements:
     _permission: 'access content'
+
+penncourse.penncourse_filter_form:
+  path: '/penncourse/form/penncourse_filter'
+  defaults:
+    _form: '\Drupal\penncourse\Form\PenncourseFilterForm'
+    _title: 'PenncourseFilterForm'
+  requirements:
+    _access: 'TRUE'
+  
