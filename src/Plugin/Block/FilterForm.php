@@ -6,6 +6,7 @@ use Drupal\Core\Block\BlockBase;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\penncourse\Service\PenncourseService;
+use Drupal\Core\Render\Renderer;
 
 /**
  * Provides a 'FilterForm' block.
@@ -37,10 +38,12 @@ class FilterForm extends BlockBase implements ContainerFactoryPluginInterface {
     array $configuration,
     $plugin_id,
     $plugin_definition,
-    PenncourseService $penncourse_service
+    PenncourseService $penncourse_service,
+    Renderer $renderer
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->penncourseService = $penncourse_service;
+    $this->renderer = $renderer;
   }
   /**
    * {@inheritdoc}
@@ -50,19 +53,21 @@ class FilterForm extends BlockBase implements ContainerFactoryPluginInterface {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('penncourse.service')
+      $container->get('penncourse.service'),
+      $container->get('renderer')
     );
   }
   /**
    * {@inheritdoc}
    */
   public function build() {
-    $form = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
-    return $form;
-    // $build = [];
-    // $build['penncourse_filter_form']['#markup'] = 'Implement FilterForm.';
+    // $form = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
+    // return $form;
+    $build = [];
+    $build['#markup'] = $this->renderer->render(\Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm'));
+    $build['#attached']['library'][] = 'penncourse/penncourse-form';
 
-    // return $build;
+    return $build;
   }
 
 }

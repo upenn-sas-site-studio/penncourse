@@ -13,11 +13,11 @@
             var action = filterForm.attr('action');
 
             // split URL on /pc (penncourse root path)
-            var actionArray = action.split('/pc');
+            var actionArray = action.split('/course-list');
 
-            action = actionArray[0] + '/pc/term/' + filterForm.find('select#edit-term').val() +
-                '/subject/' + filterForm.find('select#edit-subject').val() +
-                '/level/' + filterForm.find('select#edit-level').val();
+            action = actionArray[0] + '/course-list/' + filterForm.find('select#edit-term').val() +
+                '/' + filterForm.find('select#edit-subject').val() +
+                '/' + filterForm.find('select#edit-level').val();
 
             filterForm.attr('action', action);
             filterForm.submit();

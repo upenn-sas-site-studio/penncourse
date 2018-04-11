@@ -7,6 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Config\ConfigFactory;
 use Drupal\penncourse\Service\PenncourseService;
 use Drupal\Core\Render\Renderer;
+use Drupal\Core\Path\CurrentPathStack;
 
 /**
  * Class PenncourseController.
@@ -31,10 +32,11 @@ class PenncourseController extends ControllerBase {
    * Constructs a new PenncourseController object.
    */
   // public function __construct(ConfigFactory $config_factory) {
-  public function __construct(ConfigFactory $config_factory, PenncourseService $penncourse, Renderer $renderer) {
+  public function __construct(ConfigFactory $config_factory, PenncourseService $penncourse, Renderer $renderer, CurrentPathStack $current_path) {
     $this->configFactory = $config_factory;
     $this->penncourse = $penncourse;
     $this->renderer = $renderer;
+    $this->currentPath = $current_path;
   }
 
   /**
@@ -44,10 +46,12 @@ class PenncourseController extends ControllerBase {
     $config_factory = $container->get('config.factory');
     $penncourse = $container->get('penncourse.service');
     $renderer = $container->get('renderer');
+    $currentPath = $container->get('path.current');
     return new static(
       $config_factory,
       $penncourse,
-      $renderer
+      $renderer,
+      $currentPath
     );
   }
 
@@ -99,6 +103,7 @@ class PenncourseController extends ControllerBase {
    *   Return page title.
    */
   public function viewCourseTableTitle($term, $subj_code = 'all', $level = 'all') {
+    kint($subj_code);
     $title = '';
     if ((!$level || ($level == 'all')) && (!$subj_code || ($subj_code == 'all'))) {
         $title = 'Courses for ';

@@ -688,6 +688,49 @@ class PenncourseService {
     }
   }
 
+  /**
+   * Return an array of all course terms currently stored in the database
+   * @return array
+   */
+  function getAllTerms() {
+      // get database info about course fields
+      $db_info = $this->getStorageInfo('pc_course', array('field_pc_term'));
+
+      $sql = sprintf("SELECT DISTINCT     t.%s AS term
+                      FROM 			          {%s} t
+   					          ORDER BY 	          term DESC",
+          $db_info['field_pc_term']['column'],
+          $db_info['field_pc_term']['table']);
+
+      $connection = Database::getConnection();
+      $results = $connection->query($sql,
+        array(),
+        array());
+
+      $terms = array();
+      foreach ($results as $record) {
+          $terms[$record->term] = $this->translateTerm($record->term);
+      }
+
+      return $terms;
+  }
+
+  /**
+   * Return an array of subjects configured for this site
+   * @return array
+   */
+  function getAllSubjects() {
+    // get the subjects to process for this site
+    $subject_array = explode(' ', trim($this->config->get('penncourse_subject_areas')));
+
+    $subjects = array();
+    foreach ($subject_array as $subject_code) {
+      $subjects[$subject_code] = $this->translateSubject($subject_code);
+    }
+
+    return $subjects;
+  }
+
 
 
 
