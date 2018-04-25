@@ -72,6 +72,16 @@ class PenncourseController extends ControllerBase {
   }
 
   /**
+   * Default route response, redirects to final term
+   * @return RedirectResponse
+   */
+  public function viewCourseDefault() {
+    $final_term = $this->penncourse->getFinalTerm();
+
+    return $this->redirect('penncourse.default', ['term' => $final_term]);;
+  }
+
+  /**
    * View courses
    * @param $term
    * @param $subj_code
@@ -80,10 +90,6 @@ class PenncourseController extends ControllerBase {
    *   Return course listings.
    */
   public function viewCourseTable($term, $subj_code = 'all', $level = 'all') {
-    // module_load_include('inc', 'penncourse', 'penncourse.include');
-    // drupal_add_js(drupal_get_path('module', 'penncourse') . '/js/penncourse_course_table.js');
-    // $breadcrumb = array(l(t('Home'), NULL));
-
     $content = [];
     // get renderable array for view
     $view = views_embed_view('pc_section_table', 'default', $term, $subj_code, $level);
@@ -103,7 +109,6 @@ class PenncourseController extends ControllerBase {
    *   Return page title.
    */
   public function viewCourseTableTitle($term, $subj_code = 'all', $level = 'all') {
-    kint($subj_code);
     $title = '';
     if ((!$level || ($level == 'all')) && (!$subj_code || ($subj_code == 'all'))) {
         $title = 'Courses for ';

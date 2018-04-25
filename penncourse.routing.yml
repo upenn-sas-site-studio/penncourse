@@ -17,18 +17,24 @@ penncourse.penncourse_controller_test:
   requirements:
     _permission: 'access content'
 
+penncourse.default:
+  # redirects to display most current term.
+  path: '/course-list'
+  defaults:
+    _controller: '\Drupal\penncourse\Controller\PenncourseController::viewCourseDefault'
+
 penncourse.view:
   # This path takes dynamic arguments, which are enclosed in { }.
-  path: '/course-list/{term}/{subj_area}/{level}'
+  path: '/course-list/{term}/{subj_code}/{level}'
   defaults:
     # Because this route does not return HTML, use _controller.
     _controller: '\Drupal\penncourse\Controller\PenncourseController::viewCourseTable'
     term: NULL
-    subj_area: 'all'
+    subj_code: 'all'
     level: 'all'
     _title_callback: '\Drupal\penncourse\Controller\PenncourseController::viewCourseTableTitle'
     term: NULL
-    subj_area: 'all'
+    subj_code: 'all'
     level: 'all'
   requirements:
     _permission: 'access content'
@@ -40,4 +46,3 @@ penncourse.penncourse_filter_form:
     _title: 'PenncourseFilterForm'
   requirements:
     _access: 'TRUE'
-  

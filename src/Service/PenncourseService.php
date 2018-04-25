@@ -519,7 +519,10 @@ class PenncourseService {
       }
 
       $node->setTitle($values_array['course_id'] . ' - ' . $values_array['title']);
-      $node->set('field_pc_descr', $values_array['descr']);
+      // only update the description from data service if there is not a local description
+      if ($node->get('field_pc_local_descr')->getString() != '1') {
+        $node->set('field_pc_descr', $values_array['descr']);
+      }
       // $node->field_pc_descr[0]['value'] = $values_array['descr']; this field is maintained locally by departments
       $node->set('field_pc_instructors', ['value' => $values_array['instructors'], 'format' => 'penncourse_format']);
       if ($values_array['status'] == 'X') {
