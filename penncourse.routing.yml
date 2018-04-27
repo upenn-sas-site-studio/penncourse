@@ -9,19 +9,21 @@ penncourse.penncourse_config_form:
   options:
     _admin_route: TRUE
 
-penncourse.penncourse_controller_test:
-  path: '/course-list/test'
-  defaults:
-    _controller: '\Drupal\penncourse\Controller\PenncourseController::test'
-    _title: 'test'
-  requirements:
-    _permission: 'access content'
+#penncourse.penncourse_controller_test:
+#  path: '/course-list/test'
+#  defaults:
+#    _controller: '\Drupal\penncourse\Controller\PenncourseController::test'
+#    _title: 'test'
+#  requirements:
+#    _permission: 'access content'
 
 penncourse.default:
   # redirects to display most current term.
   path: '/course-list'
   defaults:
     _controller: '\Drupal\penncourse\Controller\PenncourseController::viewCourseDefault'
+  requirements:
+    _permission: 'access content'
 
 penncourse.view:
   # This path takes dynamic arguments, which are enclosed in { }.

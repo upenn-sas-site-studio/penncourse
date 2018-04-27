@@ -78,7 +78,7 @@ class PenncourseController extends ControllerBase {
   public function viewCourseDefault() {
     $final_term = $this->penncourse->getFinalTerm();
 
-    return $this->redirect('penncourse.default', ['term' => $final_term]);;
+    return $this->redirect('penncourse.view', ['term' => $final_term]);;
   }
 
   /**
