@@ -29,9 +29,7 @@ class PenncourseService {
 
   public function test() {
     $db_info = $this->getStorageInfo('pc_section', array('field_pc_section_id', 'field_pc_term', 'field_pc_subj_area'));
-    kint($db_info);
     $this->updateSectionsBySubject('2018C', 'ECON');
-    kint($this->getSectionNids('2018C', 'ECON'));
     /* $connection = \Drupal::database();
     $result = $connection->select($field_table, 'f')
       ->fields('f', array($field_column))
@@ -40,8 +38,6 @@ class PenncourseService {
       ->condition('entity_id', $nids, 'IN')
       ->execute()->fetchCol(); */
 
-    kint($this->config->get('penncourse_subject_map'));
-    kint($this->config->get('penncourse_available_terms'));
     return $this->config->get('penncourse_authorization_token');
   }
 
@@ -182,7 +178,6 @@ class PenncourseService {
     catch (\Exception $e) {
       $this->logger->error('penncourse exception: ' . $e . '<br />term: ' . $term . '; subject area: ' . $subj_area);
     }
-    kint($course_data);
     return $course_data;
   }
 
@@ -496,8 +491,6 @@ class PenncourseService {
           $current_uid = $user->id();
           $user = $penncourse_user;
       }
-
-      kint($values_array);
 
       if ($nid) {
           $action = 'updating section node: ' . $nid . '[nid] ' . $values_array['section_id'] . '[section_id]';
