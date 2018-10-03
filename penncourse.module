@@ -193,13 +193,14 @@ function penncourse_block_view($delta = '') {
  */
 function penncourse_filter_form($form, &$form_state) {
     module_load_include('inc', 'penncourse', 'penncourse.include');
+    $terms = penncourse_get_all_terms();
 
     // set default form values
     if (arg(2)) {
         $default_term = arg(2);
     }
     else {
-        $default_term = penncourse_load_final_term();
+        $default_term = $terms[0];
     }
 
     if (arg(4)) {
@@ -219,7 +220,7 @@ function penncourse_filter_form($form, &$form_state) {
     $form['term'] = array(
         '#type' => 'select',
         '#title' => t('Term'),
-        '#options' => penncourse_get_all_terms(),
+        '#options' => $terms,
         '#default_value' => $default_term,
         // '#description' => t('Select the term to view.'),
     );
