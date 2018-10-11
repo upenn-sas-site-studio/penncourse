@@ -477,7 +477,7 @@ function penncourse_load_sections_by_subj($term, $subj_area) {
                 // $course_info['term_session'] = $course_record->term_session;
                 $course_info['subj_area'] = $subj_area;
                 // $course_info['dist_req'] = penncourse_translate_dist_req($course_record->distribution_requirement);
-                $course_info['dist_req'] = $course_record->distribution_requirement;
+                $course_info['dist_req'] = penncourse_translate_dist_req($course_record->distribution_requirement);
                 // $course_info['status'] = $course_record->status;
                 if ($course_record->course_number > 499) {
                     $course_info['level'] = 'graduate';
