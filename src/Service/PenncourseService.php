@@ -416,7 +416,7 @@ class PenncourseService {
                   $section_info['status'] = $section_record->course_status;
                   $section_info['course_id'] = $section_record->course_department . $section_record->course_number;
                   $section_info['notes'] = $this->buildNotes($section_record->important_notes);
-                  $section_info['fulfills'] = $this->buildNotes($section_record->fulfills_college_requirements);
+                  $section_info['fulfills'] = $this->buildDistReqs($section_record->fulfills_college_requirements);
                   if ($section_record->course_number > 499) {
                       $section_info['level'] = 'graduate';
                   }
@@ -635,6 +635,22 @@ class PenncourseService {
   }
 
   /**
+   * build html markup from array of requirement info
+   * @param array
+   * @return string xhtml formatted text
+   */
+  function buildDistReqs(array $notes) {
+      $xhtml = '';
+      foreach ($notes as $note) {
+          $xhtml .= '<span class="penncourse-course-notes">' . $this->translateDistReq($note) . '</span><br />';
+      }
+      // trim the last <br /> from the string
+      $xhtml = substr($xhtml, 0, -6);
+
+      return $xhtml;
+  }
+
+  /**
    * returns a formatted string of Subject Area name
    * ('ANTH' returns 'Anthropology')
    * @param string $subj_code
@@ -667,6 +683,45 @@ class PenncourseService {
       return 'Invalid term code';
     }
   }
+
+  /**
+   * returns a formatted distribution requirement string based on a term code
+   * @param string $req_code
+   * @return string
+   */
+  function translateDistReq($req_code) {
+    $req_array = array(
+        'A' => 'Arts & Letters Sector (all classes)',
+        'B' => 'Hum/Soc Sci or Nat Sci/Math (new curriculum only)',
+        'C' => 'General Requirement in Science Studies',
+        'F' => 'General Requirement in Formal Reasoning & Analysis',
+        'H' => 'History & Tradition Sector (all classes)',
+        'L' => 'Living World Sector (all classes)',
+        'O' => 'Hum & Soc Sci Sector (new curriculum only)',
+        'N' => 'Nat Sci & Math Sector (new curriculum only)',
+        'P' => 'Physical World Sector (all classes)',
+        'R' => 'Writing Requirement Course',
+        'S' => 'Society sector (all classes)',
+        'T' => 'General Requirement in Society',
+        'U' => 'General Requirement in History & Tradition',
+        'V' => 'General Requirement in Arts & Letters',
+        'W' => 'General Requirement in Formal Reasoning & Analysis',
+        'X' => 'General Requirement in Living World',
+        'Y' => 'General Requirement in Physical World',
+        'Z' => 'General Requirement in Science Studies',
+        '1' => 'Distributional course in Society (class of 09 and prior)',
+        '2' => 'Distributional course in History & Tradition (class of 09 and prior)',
+        '3' => 'Distributional course in Arts & Letters (class of 09 and prior)',
+    );
+
+    if (isset($req_array[$req_code])) {
+        return $req_array[$req_code];
+    }
+    else {
+        return NULL;
+    }
+} // function penncourse_translate_dist_req
+
 
   /**
    * Return an array of all course terms currently stored in the database
