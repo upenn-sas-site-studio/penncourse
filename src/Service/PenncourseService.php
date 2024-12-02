@@ -49,7 +49,8 @@ class PenncourseService {
             'Authorization-Token: ' . $this->config->get('penncourse_authorization_token')
         ),
         CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://esb.isc-seo.upenn.edu/8091/open_data/course_section_search_parameters/'
+        CURLOPT_FOLLOWLOCATION => 1,
+        CURLOPT_URL => 'https://apps.sas.upenn.edu/service/sas-course-api/course_section_search_parameters/'
     ));
 
     $curl_return = curl_exec($curl);
@@ -114,7 +115,8 @@ class PenncourseService {
               'Authorization-Token: ' . $this->config->get('penncourse_authorization_token')
             ),
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_URL => 'https://esb.isc-seo.upenn.edu/8091/open_data/course_section_search?course_id=' . $subj_area . '&term=' . $term . '&page_number=' . $page . '&number_of_results_per_page=100'
+            CURLOPT_FOLLOWLOCATION => 1,
+            CURLOPT_URL => 'https://apps.sas.upenn.edu/service/sas-course-api/course_section_search?course_id=' . $subj_area . '&term=' . $term . '&page_number=' . $page . '&number_of_results_per_page=100'
         ));
 
         $curl_return = curl_exec($curl);
@@ -199,9 +201,10 @@ class PenncourseService {
    * @param string $term
    */
   public function getSectionNodesBySubjectTerm($subject_area, $term) {
-    $query = \Drupal::entityQuery('node');
-    $query->condition('type', 'pc_section');
-    $entity_ids = $query->execute();
+      $query = \Drupal::entityQuery('node')
+          ->accessCheck(FALSE)
+          ->condition('type', 'pc_section');
+      $entity_ids = $query->execute();
 
       $query = new EntityFieldQuery();
       $entity = $query->entityCondition('entity_type', 'node')
@@ -242,11 +245,11 @@ class PenncourseService {
    */
   function getCurrentTerm() {
       // get database information about course_course_id field
-      $term = date('Y', REQUEST_TIME);
-      if ((date('n', REQUEST_TIME) <= 5) && ((date('j', REQUEST_TIME) <= 20) || (date('n', REQUEST_TIME) <= 4))) {
+      $term = date('Y', \Drupal::time()->getRequestTime());
+      if ((date('n', \Drupal::time()->getRequestTime()) <= 5) && ((date('j', \Drupal::time()->getRequestTime()) <= 20) || (date('n', \Drupal::time()->getRequestTime()) <= 4))) {
           $term .= 'A';
       }
-      elseif ((date('n', REQUEST_TIME) <= 8) && ((date('j', REQUEST_TIME) <= 15) || (date('n', REQUEST_TIME) <= 7))) {
+      elseif ((date('n', \Drupal::time()->getRequestTime()) <= 8) && ((date('j', \Drupal::time()->getRequestTime()) <= 15) || (date('n', \Drupal::time()->getRequestTime()) <= 7))) {
           $term .= 'B';
       }
       else {
@@ -416,8 +419,8 @@ class PenncourseService {
                   $section_info['status'] = $section_record->course_status;
                   $section_info['course_id'] = $section_record->course_department . $section_record->course_number;
                   $section_info['notes'] = $this->buildNotes($section_record->important_notes);
-                  $section_info['fulfills'] = $this->buildDistReqs($section_record->fulfills_college_requirements);
-                  if ($section_record->course_number > 499) {
+                  $section_info['fulfills'] = $this->buildNotes($section_record->fulfills_college_requirements);
+                  if ($section_record->course_number > 4999) {
                       $section_info['level'] = 'graduate';
                   }
                   else {
@@ -486,7 +489,7 @@ class PenncourseService {
     		  // The node entity bundle.
     		  'type' => 'pc_section',
     		  'langcode' => LanguageInterface::LANGCODE_NOT_SPECIFIED,
-    		  'created' => REQUEST_TIME,
+    		  'created' => \Drupal::time()->getRequestTime(),
     		  // The user ID.
     		  'uid' => $penncourse_user->id(),
     		  'moderation_state' => 'published',
@@ -610,7 +613,7 @@ class PenncourseService {
   function buildXlists(array $xlists) {
       $result = '';
       foreach ($xlists as $xlist) {
-          $result .= '<span class="penncourse-course-xlist">' . $xlist->subject . $xlist->course_id . $xlist->section_id . '</span>, ';
+          $result .= '<span class="penncourse-course-xlist">' . $xlist->section_id . '</span>, ';
       }
       // trim the last <br /> from the string
       $result = substr($result, 0, -2);
@@ -627,22 +630,6 @@ class PenncourseService {
       $xhtml = '';
       foreach ($notes as $note) {
           $xhtml .= '<span class="penncourse-course-notes">' . $note . '</span><br />';
-      }
-      // trim the last <br /> from the string
-      $xhtml = substr($xhtml, 0, -6);
-
-      return $xhtml;
-  }
-
-  /**
-   * build html markup from array of requirement info
-   * @param array
-   * @return string xhtml formatted text
-   */
-  function buildDistReqs(array $notes) {
-      $xhtml = '';
-      foreach ($notes as $note) {
-          $xhtml .= '<span class="penncourse-course-notes">' . $this->translateDistReq($note) . '</span><br />';
       }
       // trim the last <br /> from the string
       $xhtml = substr($xhtml, 0, -6);
@@ -683,45 +670,6 @@ class PenncourseService {
       return 'Invalid term code';
     }
   }
-
-  /**
-   * returns a formatted distribution requirement string based on a term code
-   * @param string $req_code
-   * @return string
-   */
-  function translateDistReq($req_code) {
-    $req_array = array(
-        'A' => 'Arts & Letters Sector (all classes)',
-        'B' => 'Hum/Soc Sci or Nat Sci/Math (new curriculum only)',
-        'C' => 'General Requirement in Science Studies',
-        'F' => 'General Requirement in Formal Reasoning & Analysis',
-        'H' => 'History & Tradition Sector (all classes)',
-        'L' => 'Living World Sector (all classes)',
-        'O' => 'Hum & Soc Sci Sector (new curriculum only)',
-        'N' => 'Nat Sci & Math Sector (new curriculum only)',
-        'P' => 'Physical World Sector (all classes)',
-        'R' => 'Writing Requirement Course',
-        'S' => 'Society sector (all classes)',
-        'T' => 'General Requirement in Society',
-        'U' => 'General Requirement in History & Tradition',
-        'V' => 'General Requirement in Arts & Letters',
-        'W' => 'General Requirement in Formal Reasoning & Analysis',
-        'X' => 'General Requirement in Living World',
-        'Y' => 'General Requirement in Physical World',
-        'Z' => 'General Requirement in Science Studies',
-        '1' => 'Distributional course in Society (class of 09 and prior)',
-        '2' => 'Distributional course in History & Tradition (class of 09 and prior)',
-        '3' => 'Distributional course in Arts & Letters (class of 09 and prior)',
-    );
-
-    if (isset($req_array[$req_code])) {
-        return $req_array[$req_code];
-    }
-    else {
-        return NULL;
-    }
-} // function penncourse_translate_dist_req
-
 
   /**
    * Return an array of all course terms currently stored in the database
