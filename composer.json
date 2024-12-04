@@ -1,14 +1,17 @@
 {
-  "name": "drupal/penncourse",
+  "name": "sas-irad/penncourse",
   "type": "drupal-module",
-  "description": "Displays course information from the Penn-In-Touch web service.",
+  "description": "Displays College course information.",
   "keywords": ["Drupal"],
   "license": "GPL-2.0+",
-  "homepage": "https://www.drupal.org/project/penncourse",
+  "homepage": "https://gitlab.sas.upenn.edu/web/penncourse",
   "minimum-stability": "dev",
   "support": {
-    "issues": "https://www.drupal.org/project/issues/penncourse",
-    "source": "http://cgit.drupalcode.org/penncourse"
+    "issues": "https://gitlab.sas.upenn.edu/web/penncourse/-/issues",
+    "source": "https://gitlab.sas.upenn.edu/web/penncourse"
   },
-  "require": { }
+  "require": {
+    "php": "^8.3",
+    "drupal/core": "^11"
+  }
 }
