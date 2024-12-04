@@ -429,10 +429,10 @@ class PenncourseService {
 
                   // create or update the section node
                   if (isset($section_nodes[$key])) {
-                      $this->updateSectionNode($section_nodes[$key], $section_info);
+                      $this->updateSectionNode($section_info, $section_nodes[$key]);
                   }
                   else {
-                      $section_nodes[$key] = $this->updateSectionNode(NULL, $section_info);
+                      $section_nodes[$key] = $this->updateSectionNode($section_info, NULL);
                   }
               }
 
@@ -469,7 +469,7 @@ class PenncourseService {
    * @param integer $nid
    * @param array $values_array
    */
-  function updateSectionNode($nid = NULL, $values_array) {
+  function updateSectionNode($values_array, $nid = NULL) {
       $user = User::load(\Drupal::currentUser()->id());
       // we want the author of this content to be a dedicated user account, penncourse_user
       $current_uid = NULL;

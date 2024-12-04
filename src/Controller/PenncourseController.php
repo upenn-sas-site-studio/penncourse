@@ -14,24 +14,14 @@ use Drupal\Core\Path\CurrentPathStack;
  */
 class PenncourseController extends ControllerBase {
 
-  /**
-   * The Penncourse helper service.
-   *
-   * @var \Drupal\penncourse\Service\PenncourseService
-   */
   protected $penncourse;
-
-  /**
-   * Drupal\Core\Config\ConfigFactory definition.
-   *
-   * @var \Drupal\Core\Config\ConfigFactory
-   */
   protected $configFactory;
+  protected $renderer;
+  protected $currentPath;
 
   /**
    * Constructs a new PenncourseController object.
    */
-  // public function __construct(ConfigFactory $config_factory) {
   public function __construct(ConfigFactory $config_factory, PenncourseService $penncourse, Renderer $renderer, CurrentPathStack $current_path) {
     $this->configFactory = $config_factory;
     $this->penncourse = $penncourse;

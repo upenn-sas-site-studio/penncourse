@@ -62,15 +62,43 @@ class FilterForm extends BlockBase implements ContainerFactoryPluginInterface {
   /**
    * {@inheritdoc}
    */
-  public function build() {
-    // $form = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
-    // return $form;
-    $build = [];
-    $f = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
-    $build['#markup'] = $this->renderer->render($f);    
-    $build['#attached']['library'][] = 'penncourse/penncourse-form';
+  // public function build() {
+  //   // $form = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
+  //   // return $form;
+  //   $build = [];
+  //   $f = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
+  //   $build['#markup'] = $this->renderer->render($f);    
+  //   $build['#attached']['library'][] = 'penncourse/penncourse-form';
 
-    return $build;
+  //   return $build;
+  // }
+
+
+  // public function build() {
+  //   // Log that the build() method is being called.
+  //   \Drupal::logger('penncourse')->notice('The build() method in FilterForm block was called.');
+  
+  //   $build = [];
+  //   $form = \Drupal::formBuilder()->getForm('Drupal\penncourse\Form\PenncourseFilterForm');
+    
+  //   // Log the result of form building for debugging purposes.
+  //   \Drupal::logger('penncourse')->debug('Form built: @form', ['@form' => print_r($form, TRUE)]);
+  
+  //   $build['#markup'] = $this->renderer->render($form);
+  //   $build['#attached']['library'][] = 'penncourse/penncourse-form';
+  
+  //   // Log that the build() method is returning the render array.
+  //   \Drupal::logger('penncourse')->notice('The build() method is returning the render array.');
+  
+  //   return $build;
+  // }
+  
+  public function build() {
+    \Drupal::logger('penncourse-block')->notice('Block rendering...');
+    return [
+      '#markup' => 'This is a test block.',
+    ];
   }
+  
 
 }
